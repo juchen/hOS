@@ -90,3 +90,6 @@ void c_entry(void)
 		"ljmpl $0x1800, $0\n\t"
 	   );
 }
+
+// a modification in add_time_isr division.
+//
