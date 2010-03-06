@@ -111,7 +111,7 @@ void c_entry(void)
 			(void *)0x000B8000, 0x3, 0x0);
 	gdtr.len = sizeof(segDescTable) - 1;
 	gdtr.base = SEGS_BASE + ((DWORD)(segDescTable));
-	asm("mov %0, %%edx\n\t"::"g"(&gdtr));
+	//asm("mov %0, %%edx\n\t"::"g"(&gdtr));
 	asm(
 			"lgdt (%0)\n\t"::"g"(&gdtr)
 	   );

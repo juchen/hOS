@@ -25,7 +25,7 @@ all:boot.bin secboot.bin
 
 clean:
 	rm -rf $(ENTRY_OBJ) $(OBJS) $(SEC_ENTRY_OBJ) $(SEC_OBJS) $(SEC_CPP_OBJS)
-	rm -rf boot.bin
+	rm -rf boot.bin secboot.bin
 
 boot.bin:$(ENTRY_OBJ) $(OBJS)
 	$(LD) -o boot.bin $(ENTRY_OBJ) $(OBJS) $(LDFLAG)

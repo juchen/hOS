@@ -9,9 +9,10 @@ void pm_c_entry(void)
 {
 	Screen s;
 	s.cls();
-	puts("Hello! World!\n");
-	printf("Give me %d\n", 5);
-	puts("Hello! World!\n");
+	//puts("Hello! World!\n");
+	//printf("Give me %d\n", 5);
+	//puts("Hello! World!\n");
+	printf("Booting hOS...\n");
 	/*
 	putchar('H');
 	putchar('e');
