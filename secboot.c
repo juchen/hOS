@@ -58,7 +58,7 @@ static inline void SegmentDescriptor_dataSegSetup(SegmentDescriptor *me,
 
 /// Please note that the priority should less then 3
 /// and the limit should less then 0x00100000 (onle 20-bit effective)
-static inline SegmentDescriptor_stackSegSetup(SegmentDescriptor *me,
+static inline void SegmentDescriptor_stackSegSetup(SegmentDescriptor *me,
 		void* base, unsigned int limit, unsigned int priority)
 {
 	SegmentDescriptor_setBaseLimitDPL(me, base, limit, priority);
@@ -104,7 +104,8 @@ void c_entry(void)
 	SegmentDescriptor_codeSegSetup(&(segDescTable[SEG_CODE_SELECTOR/8]),
 			(void *)SEGS_BASE, 0x7, 0x0);
 	SegmentDescriptor_dataSegSetup(&(segDescTable[SEG_DATA_SELECTOR/8]),
-			(void *)SEGS_BASE, 0xF, 0x0); // should include the stack segment for manipulation.
+			(void *)SEGS_BASE, 0x1FE8, 0x0); // should include the stack segment for manipulation.
+	// ^^^ data segment includes all the availble mem (32MB) from 0x18000 to 0x2000000.
 	SegmentDescriptor_stackSegSetup(&(segDescTable[SEG_STACK_SELECTOR/8]),
 			(void *)SEGS_BASE, 0x8, 0x0);
 	SegmentDescriptor_dataSegSetup(&(segDescTable[SEG_VIDEO_SELECTOR/8]),
