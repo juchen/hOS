@@ -135,7 +135,7 @@ public:
 	void setToCPU();
 	void setTimerISR(void (*addr)(void))
 	{
-		setIntGate(0, addr);
+		setIntGate(0x20, addr);
 	}
 };
 #endif // _SYS_STRUCT_H_

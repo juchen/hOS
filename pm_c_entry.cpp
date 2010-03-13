@@ -110,8 +110,8 @@ static inline void init_IntCtrlr(void)
 #warning The mask should be properly configured.
 	//outb(PIC1_DATA, a1);   // restore saved masks.
 	//outb(PIC2_DATA, a2);
-	outb(PIC1_DATA, 0x8f /*a1*/);   // unmask IRQ0 only.
-	outb(PIC2_DATA, 0xff /*a2*/);
+	outb(PIC1_DATA, 0xFE /*a1*/);   // unmask IRQ0 only.
+	outb(PIC2_DATA, 0xFF /*a2*/);
 }
 
 static inline void enable_Int()
@@ -127,10 +127,12 @@ void pm_c_entry(void)
 	Idt idt;
 	::init_ISR(idt);
 	::init_IntCtrlr();
+	//asm("int $0x20\n\t");
 	::enable_Int();
+	unsigned char i = 0;
 	while(1)
 	{
-		printf("In thread!\n");
+		printf("-> %d \t", i++);
 	}
 	/*
 	Gdt gdt; // Copy original GDT and give more segment descriptor, TSS, user mode segs, etc.
