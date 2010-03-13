@@ -97,4 +97,20 @@ struct Tss
 	WORD ioMapBase;
 	WORD revAndTrapFlag;
 };
+
+struct IdtDesc
+{
+	WORD offsetLow;
+	WORD selector;
+	byte ctrl1;
+	byte ctrl2;
+	WORD offsetHigh;
+} __attribeute__((aligned(4)));
+
+class Idt
+{
+private:
+	IdtDesc idt[MAX_INT_NUM] __attribute__((aligned(8)));
+public:	
+};
 #endif // _SYS_STRUCT_H_
