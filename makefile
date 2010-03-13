@@ -12,8 +12,7 @@ OBJS = boot1.o
 
 SEC_ENTRY_OBJ = secbootinit.o pm_entry.o
 SEC_OBJS = secboot.o printf-stdarg.o
-SEC_CPP_OBJS = pm_c_entry.o putchar.o
-
+SEC_CPP_OBJS = debug.o pm_c_entry.o putchar.o sys_struct.o 
 TOTAL_OBJS = $(OBJS) $(SEC_OBJS)
 TOTAL_CPP_OBJS = $(SEC_CPP_OBJS)
 C_FILES = $(addsuffix .c, $(basename $(TOTAL_OBJS)))

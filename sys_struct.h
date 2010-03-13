@@ -1,6 +1,9 @@
 #ifndef _SYS_STRUCT_H_
 #define _SYS_STRUCT_H_
 
+#include "debug.h"
+#include "types.h"
+
 struct SegDesc
 {
 	WORD limit;
@@ -51,7 +54,7 @@ public:
 	}
 	void remove(unsigned int index)
 	{
-		ASSERT(FALSE);
+		ASSERT(false);
 	}
 	const SegDesc &getEntry(unsigned int index);
 } __attribute__((aligned(4)));
@@ -98,19 +101,41 @@ struct Tss
 	WORD revAndTrapFlag;
 };
 
+enum IntGateType
+{
+	INT_GATE,
+	TRAP_GATE,
+};
+
 struct IdtDesc
 {
 	WORD offsetLow;
 	WORD selector;
-	byte ctrl1;
-	byte ctrl2;
+	BYTE ctrl1;
+	BYTE ctrl2;
 	WORD offsetHigh;
-} __attribeute__((aligned(4)));
+	void set(void (*addr)(void), IntGateType t);
+} __attribute__((aligned(4)));
 
+#define MAX_INT_NUM 0x30
 class Idt
 {
 private:
 	IdtDesc idt[MAX_INT_NUM] __attribute__((aligned(8)));
+	void setIntGate(unsigned int i, void (*addr)(void))
+	{
+		idt[i].set(addr, INT_GATE);
+	}
+	void setTrapGate(unsigned int i, void (*addr)(void))
+	{
+		idt[i].set(addr, TRAP_GATE);
+	}
 public:	
+	Idt();
+	void setToCPU();
+	void setTimerISR(void (*addr)(void))
+	{
+		setIntGate(0, addr);
+	}
 };
 #endif // _SYS_STRUCT_H_
