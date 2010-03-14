@@ -2,6 +2,8 @@
 #include "putchar.h"
 #include "sys_struct.h"
 #include "isr.h"
+#include "timer8253.h"
+#include "x86functions.h"
 
 extern "C" {
 void pm_c_entry(void);
@@ -11,28 +13,6 @@ static inline void init_ISR(Idt &idt)
 {
 	idt.setTimerISR(timerISR);
 	idt.setToCPU();
-}
-
-inline BYTE inb(unsigned int port)
-{
-	BYTE r;
-	asm("mov %1, %%dx\n\t"
-	    "inb %%dx, %%al\n\t"
-	    "mov %%al, %0\n\t":"=g"(r):"g"(port):"al","dx");
-	return r;
-}
-
-inline void outb(unsigned int port, BYTE value)
-{
-	asm("mov %0, %%dx\n\t"
-	    "mov %1, %%al\n\t"
-	    "out %%al, %%dx\n\t"::"g"(port), "g"(value):"al","dx");
-}
-
-inline void io_wait(void)
-{
-	volatile unsigned int i = 100;
-	while(i--);
 }
 
 /* reinitialize the PIC controllers, giving them specified vector offsets
@@ -103,6 +83,7 @@ void pm_c_entry(void)
 	s.cls();
 	printf("Booting hOS...\n");
 	Idt idt;
+	Timer8253 timer8253;
 	::init_ISR(idt);
 	::init_IntCtrlr();
 	TRACE_HEX(pm_c_entry);

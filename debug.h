@@ -7,6 +7,7 @@
 
 void onAssert(const char *filename, unsigned int linenum, bool condition);
 
-#define TRACE_HEX(x) printf(__FILE__ ":%d:" #x " = 0x%08x\n", __LINE__, (x));
+#define TRACE_HEX(x) printf(__FILE__ ":%d:" #x " = 0x%08x\n", __LINE__, (x))
+#define CHECK_POINT printf(__FILE__ ":%d: check point\n", __LINE__)
 
 #endif // _DEBUG_H_

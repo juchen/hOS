@@ -19,6 +19,8 @@ timerISR:
 	subl	$8, %esp
 	movl	$.LC0, (%esp)
 	call	puts
+	mov $0x20, %al
+	out %al, $0x20
 	leave
 #APP
 	pop %esi
