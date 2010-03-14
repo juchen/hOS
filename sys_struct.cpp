@@ -112,6 +112,7 @@ Idt::Idt()
 	SET_INT_GATE(0x0a);
 	SET_INT_GATE(0x0b);
 	SET_INT_GATE(0x0c);
+	TRACE_HEX(defaultIntHandler0x0c);
 	SET_INT_GATE(0x0d);
 	SET_INT_GATE(0x0e);
 	SET_INT_GATE(0x0f);

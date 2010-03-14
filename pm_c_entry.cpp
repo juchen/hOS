@@ -1,32 +1,10 @@
 #include "printf-stdarg.h"
 #include "putchar.h"
 #include "sys_struct.h"
+#include "isr.h"
 
 extern "C" {
 void pm_c_entry(void);
-}
-
-void timerISR(void)
-{
-	asm("push %eax\n\t"
-	    "push %ebx\n\t"
-	    "push %ecx\n\t"
-	    "push %edx\n\t"
-	    "push %edi\n\t"
-	    "push %esi\n\t"
-	    "push %ebp\n\t"
-	   );
-	printf("\n\nTimer Interrupt!\n\n");
-	asm(
-	    "pop %ebp\n\t"
-	    "pop %esi\n\t"
-	    "pop %edi\n\t"
-	    "pop %edx\n\t"
-	    "pop %ecx\n\t"
-	    "pop %ebx\n\t"
-	    "pop %eax\n\t"
-	    "leave\n\t"
-	    "iret\n\t");
 }
 
 static inline void init_ISR(Idt &idt)
@@ -127,12 +105,13 @@ void pm_c_entry(void)
 	Idt idt;
 	::init_ISR(idt);
 	::init_IntCtrlr();
+	TRACE_HEX(pm_c_entry);
 	//asm("int $0x20\n\t");
 	::enable_Int();
 	unsigned char i = 0;
 	while(1)
 	{
-		printf("-> %d \t", i++);
+		//printf("-> %d \t", i++);
 	}
 	/*
 	Gdt gdt; // Copy original GDT and give more segment descriptor, TSS, user mode segs, etc.
