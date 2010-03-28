@@ -31,6 +31,7 @@ boot.bin:$(ENTRY_OBJ) $(OBJS)
 
 secboot.bin:secboot.elf
 	objcopy -O binary secboot.elf secboot.bin
+
 secboot.elf:$(SEC_ENTRY_OBJ) $(SEC_OBJS) $(SEC_CPP_OBJS)
 	$(LD) -o secboot.elf $(SEC_ENTRY_OBJ) $(SEC_OBJS) $(SEC_CPP_OBJS) -Tlink.ld -g
 

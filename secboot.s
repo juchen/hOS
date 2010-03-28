@@ -97,7 +97,9 @@ c_entry:
 	mov %cr0, %eax
 	or $1, %eax
 	mov %eax, %cr0
+	.code32
 	ljmpl $0x08, $pm_entry
+	.code16gcc
 	
 #NO_APP
 .L2:

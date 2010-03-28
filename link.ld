@@ -14,19 +14,19 @@ SECTIONS
 		secboot.o(.text*)
 	} > ram16 AT > rom16
 
-	.data16 :
+	.data16 . :
 	{
 		secbootinit.o(.data* .rodata* COMMON)
 		secboot.o(.data* .rodata* COMMON)
 	} > ram16 AT > rom16
 
-	.bss16 :
+	.bss16 . :
 	{
 		secbootinit.o(.bss*)
 		secboot.o(.bss*)
 	} > ram16 AT > rom16
 
-	.stack16 :
+	.stack16 . :
 	{
 		. = 0x400;
 		_stack16 = .;
@@ -37,26 +37,26 @@ SECTIONS
 		*(.text*)
 	} > ram32 AT > rom32
 
-	.ctors :
+	.ctors . :
 	{
 		_ctor_start = .;
 		*(.ctor*)
 		_ctor_end = .;
 	} > ram32 AT > rom32
 
-	.data :
+	.data . :
 	{
 		*(.data*)
 		*(.rodata*)
 		*(COMMON)
 	} > ram32 AT > rom32
 
-	.bss :
+	.bss . :
 	{
 		*.(bss*)
 	} > ram32 AT > rom32
 
-	.stack :
+	.stack . :
 	{
 		. = 0x10000;
 		_stack = .;

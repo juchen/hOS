@@ -102,16 +102,16 @@ void c_entry(void)
 
 	printString("In second boot loader\n\rNow\n", 27, 21); 
 	SegmentDescriptor_codeSegSetup(&(segDescTable[SEG_CODE_SELECTOR/8]),
-			(void *)SEGS_BASE, 0x187, 0x0);
+			(void *)SEGS_BASE, 0x20, 0x0);
 	SegmentDescriptor_dataSegSetup(&(segDescTable[SEG_DATA_SELECTOR/8]),
 			(void *)SEGS_BASE, 0x2000, 0x0); // should include the stack segment for manipulation.
 	// ^^^ data segment includes all the availble mem (32MB) from 0x18000 to 0x2000000.
 	SegmentDescriptor_stackSegSetup(&(segDescTable[SEG_STACK_SELECTOR/8]),
-			(void *)SEGS_BASE, 0x188, 0x0);
+			(void *)SEGS_BASE, 0x21, 0x0);
 	SegmentDescriptor_dataSegSetup(&(segDescTable[SEG_VIDEO_SELECTOR/8]),
 			(void *)0x000B8000, 0x3, 0x0);
 	gdtr.len = sizeof(segDescTable) - 1;
-	gdtr.base = SEGS_BASE + ((DWORD)(segDescTable));
+	gdtr.base = /*SEGS_BASE*/ 0x18000 + ((DWORD)(segDescTable)); // This is linear address. Not match with 16-bit logic address.
 	//asm("mov %0, %%edx\n\t"::"g"(&gdtr));
 	asm(
 			"lgdt (%0)\n\t"::"g"(&gdtr)
@@ -126,7 +126,9 @@ void c_entry(void)
 			"mov %%cr0, %%eax\n\t"
 			"or $1, %%eax\n\t"
 			"mov %%eax, %%cr0\n\t"     // entered protection mode.
+			//".code32\n\t"
 			"ljmpl $0x08, %0\n\t"
+			//".code16gcc\n\t"
 			::"g"(pm_entry):"eax"
 	   );
 	while(1);
