@@ -26,9 +26,9 @@ SECTIONS
 		secboot.o(.bss*)
 	} > ram16 AT > rom16
 
+	. = 0x1000;
 	.stack16 . :
 	{
-		. = 0x400;
 		_stack16 = .;
 	} > ram16 AT > rom16
 
@@ -56,9 +56,9 @@ SECTIONS
 		*.(bss*)
 	} > ram32 AT > rom32
 
+	. = 0x2000000;
 	.stack . :
 	{
-		. = 0x10000;
 		_stack = .;
 	} > ram32 AT > rom32
 }
