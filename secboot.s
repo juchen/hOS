@@ -51,8 +51,8 @@ c_entry:
 	sall	$3, %eax
 	addl	$segDescTable, %eax
 	movl	$0, 12(%esp)
-	movl	$16, 8(%esp)
-	movl	$98304, 4(%esp)
+	movl	$391, 8(%esp)
+	movl	$0, 4(%esp)
 	movl	%eax, (%esp)
 	call	SegmentDescriptor_codeSegSetup
 	movl	SEG_DATA_SELECTOR, %eax
@@ -60,8 +60,8 @@ c_entry:
 	sall	$3, %eax
 	addl	$segDescTable, %eax
 	movl	$0, 12(%esp)
-	movl	$16, 8(%esp)
-	movl	$98304, 4(%esp)
+	movl	$8192, 8(%esp)
+	movl	$0, 4(%esp)
 	movl	%eax, (%esp)
 	call	SegmentDescriptor_dataSegSetup
 	movl	SEG_STACK_SELECTOR, %eax
@@ -69,8 +69,8 @@ c_entry:
 	sall	$3, %eax
 	addl	$segDescTable, %eax
 	movl	$0, 12(%esp)
-	movl	$8, 8(%esp)
-	movl	$98304, 4(%esp)
+	movl	$392, 8(%esp)
+	movl	$0, 4(%esp)
 	movl	%eax, (%esp)
 	call	SegmentDescriptor_stackSegSetup
 	movl	SEG_VIDEO_SELECTOR, %eax
@@ -84,13 +84,7 @@ c_entry:
 	call	SegmentDescriptor_dataSegSetup
 	movw	$39, -6(%ebp)
 	movl	$segDescTable, %eax
-	addl	$98304, %eax
 	movl	%eax, -4(%ebp)
-	leal	-6(%ebp), %eax
-#APP
-	mov %eax, %edx
-	
-#NO_APP
 	leal	-6(%ebp), %eax
 #APP
 	lgdt (%eax)

@@ -29,8 +29,10 @@ clean:
 boot.bin:$(ENTRY_OBJ) $(OBJS)
 	$(LD) -o boot.bin $(ENTRY_OBJ) $(OBJS) $(LDFLAG)
 
-secboot.bin:$(SEC_ENTRY_OBJ) $(SEC_OBJS) $(SEC_CPP_OBJS)
-	$(LD) -o secboot.bin $(SEC_ENTRY_OBJ) $(SEC_OBJS) $(SEC_CPP_OBJS) $(LDFLAG)
+secboot.bin:secboot.elf
+	objcopy -O binary secboot.elf secboot.bin
+secboot.elf:$(SEC_ENTRY_OBJ) $(SEC_OBJS) $(SEC_CPP_OBJS)
+	$(LD) -o secboot.elf $(SEC_ENTRY_OBJ) $(SEC_OBJS) $(SEC_CPP_OBJS) -Tlink.ld -g
 
 boot1.o:boot1.c
 	$(CC) -c $< $(CFLAG) -Os

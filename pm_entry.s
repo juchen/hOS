@@ -8,7 +8,7 @@ pm_entry:
 	mov %ax, %gs
 	mov $0x18, %ax
 	mov %ax, %ss
-	mov $0x10000, %esp
+	mov $_stack, %esp
 	xor %eax, %eax
 	xor %ebx, %ebx
 	xor %ecx, %ecx

@@ -94,7 +94,7 @@ void printString(char *s, unsigned int len, BYTE row);
 
 void pm_entry(void);
 
-#define SEGS_BASE 0x00018000
+#define SEGS_BASE 0x00000000
 
 void c_entry(void)
 {
@@ -102,12 +102,12 @@ void c_entry(void)
 
 	printString("In second boot loader\n\rNow\n", 27, 21); 
 	SegmentDescriptor_codeSegSetup(&(segDescTable[SEG_CODE_SELECTOR/8]),
-			(void *)SEGS_BASE, 0x7, 0x0);
+			(void *)SEGS_BASE, 0x187, 0x0);
 	SegmentDescriptor_dataSegSetup(&(segDescTable[SEG_DATA_SELECTOR/8]),
-			(void *)SEGS_BASE, 0x1FE8, 0x0); // should include the stack segment for manipulation.
+			(void *)SEGS_BASE, 0x2000, 0x0); // should include the stack segment for manipulation.
 	// ^^^ data segment includes all the availble mem (32MB) from 0x18000 to 0x2000000.
 	SegmentDescriptor_stackSegSetup(&(segDescTable[SEG_STACK_SELECTOR/8]),
-			(void *)SEGS_BASE, 0x8, 0x0);
+			(void *)SEGS_BASE, 0x188, 0x0);
 	SegmentDescriptor_dataSegSetup(&(segDescTable[SEG_VIDEO_SELECTOR/8]),
 			(void *)0x000B8000, 0x3, 0x0);
 	gdtr.len = sizeof(segDescTable) - 1;

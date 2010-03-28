@@ -32,7 +32,7 @@ void Idt::setToCPU()
 {
 	Idtr idtr;
 	idtr.limit = (MAX_INT_NUM * sizeof(IdtDesc) - 1);
-	idtr.addr = idt + (0x18000/sizeof(IdtDesc));
+	idtr.addr = idt; // + (0x18000/sizeof(IdtDesc));
 	TRACE_HEX(idt);
 	TRACE_HEX(idtr.limit);
 	TRACE_HEX(idtr.addr);

@@ -14,7 +14,7 @@ main:
 	mov %ax, %fs
 	mov %ax, %gs
 	mov %ax, %ss
-	mov $0x0, %esp
+	mov $_stack16, %esp
 	jmp c_entry
 
 	.text
