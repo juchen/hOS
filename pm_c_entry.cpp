@@ -88,6 +88,7 @@ void pm_c_entry(void)
 	::init_IntCtrlr();
 	TRACE_HEX(pm_c_entry);
 	//asm("int $0x20\n\t");
+  // Before enabling interrupts. TSS has to be setup. 201111271528
 	::enable_Int();
 	unsigned char i = 0;
 	while(1)

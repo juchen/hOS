@@ -28,6 +28,7 @@ struct GdtReg
 	WORD dummy; // help to align base to DWORD boundary.
 	WORD len;
 	DWORD base;
+  WORD dummy2;
 	void loadFromCpu();
 	void storeToCpu();
 } __attribute__((packed)) __attribute__((aligned(4)));
@@ -61,17 +62,17 @@ public:
 
 struct Tss
 {
-	WORD reserved1;
 	WORD prevTaskLink;
+	WORD reserved1;
 	DWORD esp0;
-	WORD reserved2;
 	WORD ss0;
+	WORD reserved2;
 	DWORD esp1;
-	WORD reserved3;
 	WORD ss1;
+	WORD reserved3;
 	DWORD esp2;
-	WORD reserved4;
 	WORD ss2;
+	WORD reserved4;
 	DWORD cr3;
 	DWORD eip;
 	DWORD eflags;
@@ -83,22 +84,22 @@ struct Tss
 	DWORD ebp;
 	DWORD esi;
 	DWORD edi;
-	WORD reserved5;
 	WORD es;
-	WORD reserved6;
+	WORD reserved5;
 	WORD cs;
-	WORD reserved7;
+	WORD reserved6;
 	WORD ss;
-	WORD reserved8;
+	WORD reserved7;
 	WORD ds;
-	WORD reserved9;
+	WORD reserved8;
 	WORD fs;
-	WORD reserved10;
+	WORD reserved9;
 	WORD gs;
-	WORD reserved11;
+	WORD reserved10;
 	WORD ldtSelector;
-	WORD ioMapBase;
+	WORD reserved11;
 	WORD revAndTrapFlag;
+	WORD ioMapBase;
 };
 
 enum IntGateType

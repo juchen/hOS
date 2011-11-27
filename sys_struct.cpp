@@ -1,6 +1,22 @@
 #define _SYS_STRUCT_CPP_
 #include "sys_struct.h"
 
+void GdtReg::loadFromCpu()
+{
+  asm(
+      "mov %0, %%ebx\n\t"
+      "sgdtl (%%ebx)\n\t"::"g"(&len):"ebx"
+     );
+}
+
+void GdtReg::storeToCpu()
+{
+  asm(
+      "mov %0, %%ebx\n\t"
+      "lgdtl (%%ebx)\n\t"::"g"(&len):"ebx"
+     );
+}
+
 void IdtDesc::set(void (*addr)(void), IntGateType t)
 {
 	offsetLow = (reinterpret_cast<DWORD>(addr)) & 0xFFFF;
@@ -150,4 +166,44 @@ Idt::Idt()
 	SET_INT_GATE(0x2f);
 }
 
-
+TSS gDefTss =
+{
+  .prevTaskLink = 0;
+  .reserved1 = 0;
+  .esp0 = somewhere appropriate;
+  .ss0 = 0x18; // flat mem mode.
+  .reserved2 = 0;
+  .esp1 = the same as esp0;
+  .ss1 = 0x18; // flat mem mode.
+  .reserved3 = 0;
+  .esp2 = the same as esp0;
+  .ss2 = 0x18; // flast mem mode.
+  .reserved4 = 0;
+  .cr3 = unclear how to set this, need more reading of the spec;
+  .eip = 0; // should no need to be precise.
+  .eflags = 0; // should no need to be precise.
+  .eax = 0;
+  .ecx = 0;
+  .edx = 0;
+  .ebx = 0;
+  .esp = 0;
+  .ebp = 0;
+  .esi = 0;
+  .edi = 0;
+  .es = 0x10; //flat mem mode.
+  .reserved5 = 0;
+  .cs = 0x08;
+  .reserved6 = 0;
+  .ss = 0x18;
+  .reserved7 = 0;
+  .ds = 0x10;
+  .reserved8 = 0;
+  .fs = 0x10;
+  .reserved9 = 0;
+  .gs = 0x10;
+  .reserved10 = 0;
+  .ldtSelector = let it be zero lenght should be ok;
+  .reserved11 = 0;
+  .revAndTrapFlag = 0; // Make sure T flag is zero.
+  .ioMapBase = figure out.;
+};
