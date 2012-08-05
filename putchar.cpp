@@ -40,17 +40,20 @@ void Screen::putchar(int c)
 	else
 	{
 	curPos = (BYTE *)(((DWORD)curPos) % (width * height * 2));
+  char attr = _attr;
 	asm(
 			"push %%ds\n\t"
 			"mov %0, %%ax\n\t"
 			"mov %%ax, %%ds\n\t"
 			"mov %1, %%ebx\n\t"
-			"movb %2, (%%ebx)\n\t"
-			"movb %3, 1(%%ebx)\n\t"
+			"movb %2, %%al\n\t"
+			"movb %%al, (%%ebx)\n\t"
+			"movb %3, %%al\n\t"
+			"movb %%al, 1(%%ebx)\n\t"
 			"pop %%ds\n\t"::"g"(SEG_VIDEO_SELECTOR),
 				"g"((DWORD)curPos),
 			       	"g"(char(c)),
-			       	"g"(_attr):"ax","ebx"
+			       	"g"(char(attr)):"ax","ebx"
 	   );
 	curPos += 2;
 	}
