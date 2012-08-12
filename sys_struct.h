@@ -16,13 +16,16 @@ struct SegDesc
 	void setCodeSeg(void *base, unsigned int limit, unsigned int privilege);
 	void setDataSeg(void *base, unsigned int limit, unsigned int privilege);
 	void setStackSeg(void *base, unsigned int limit, unsigned int privilege);
-	void setTssSeg(void *base, unsigned int limit, unsigned int privilege);
+	void setTssSeg(void *base, unsigned int limit, unsigned int privilege,
+      bool buzy = false);
 	DWORD getBase()
 	{
 		return (((DWORD)baseHigh) << 24) + (((DWORD)baseMid) << 16) + ((DWORD)baseLow);
 	}
 } __attribute__((packed)) __attribute__((aligned(4)));
 
+/// Represent GDTR
+///
 struct GdtReg
 {
 	WORD dummy; // help to align base to DWORD boundary.
@@ -31,27 +34,39 @@ struct GdtReg
   WORD dummy2;
 	void loadFromCpu();
 	void storeToCpu();
+  WORD getRawLen() { return len; }
+  int getByteLen() { return len + 1; }
+  int getEntryNum() { return (len + 1) / 8; }
+  void setEntryNum(int n) { len = n * 8 - 1; }
+  DWORD getBase() { return base; }
+  void setBaseAndEntryNumber(SegDesc *b, WORD n /* in entry number */)
+  {
+    base = (DWORD)b;
+    len = n * 8 - 1;
+  }
 } __attribute__((packed)) __attribute__((aligned(4)));
 
-const unsigned int MAX_GDT_SIZE = 16;
 class Gdt
 {
 private:
+  static const unsigned int MAX_GDT_SIZE = 16;
 	SegDesc _gdt[MAX_GDT_SIZE] __attribute__((aligned(8)));
 	GdtReg _gdtReg;
 	void setEntry(unsigned int index, const SegDesc &segDesc);
-	void setLen(unsigned short l);
+	void setEntryNum(unsigned short l);
 public:
-	Gdt();
+	//Gdt();
 	void initFromCpu();
 	void setToCpu();
 	void *base();
-	unsigned short len();
-	void push(const SegDesc &segDesc)
+	int entryNum();
+	unsigned short push(const SegDesc &segDesc)
 	{
-		unsigned short l = len();
-		setEntry(l, segDesc);
-		setLen(l+1);
+		unsigned short n = entryNum();
+    ASSERT(n+1 < MAX_GDT_SIZE);
+		setEntry(n, segDesc);
+		setEntryNum(n+1);
+    return n * 8; // Every selector has it offset from bit 3.
 	}
 	void remove(unsigned int index)
 	{
@@ -100,7 +115,7 @@ struct Tss
 	WORD reserved11;
 	WORD revAndTrapFlag;
 	WORD ioMapBase;
-};
+} __attribute__((packed)) __attribute__((aligned(8)));
 
 enum IntGateType
 {

@@ -88,36 +88,45 @@ void pm_c_entry(void)
 	::init_IntCtrlr();
 	TRACE_HEX(pm_c_entry);
 	//asm("int $0x20\n\t");
+  //
   // Before enabling interrupts. TSS has to be setup. 201111271528
-	::enable_Int();
-	unsigned char i = 0;
-	while(1)
-	{
-		//printf("-> %d \t", i++);
-	}
-	/*
 	Gdt gdt; // Copy original GDT and give more segment descriptor, TSS, user mode segs, etc.
 	gdt.initFromCpu();
+
+  CHECK_POINT;
 	Tss tss; // The single TSS that gives SS:SP for every privellege.
+  // We need not to init this TSS cause the task need no initialization.
+  // (It is running here)
+  /*
 #error init tss
 	tss.esp0 = ...;
 	tss.ss0 = 0x18;
 	tss.revAndTrapFlag = 0;
 	// other fields are irrelevant in my purpose.
 #error	here.
-	unsigned int tssSelector;
+  */
+	unsigned short tssSelector;
 	{ // This block to make some variable local in local.
 		SegDesc tssDesc; // This variable will be released from the stack after leaving this block.
-#error init tssDesc
-		tssDesc.setTssSeg(&tssDesc, sizeof(tssDesc)-1, 0);
-#error	here.
+    TRACE_HEX(sizeof(tss));
+    TRACE_HEX(sizeof(Tss));
+		tssDesc.setTssSeg(&tss, sizeof(tss)-1, 0);
 		tssSelector = gdt.push(tssDesc);
 	}
-#error TSS_SEG_SELECTOR has to be get.
+  gdt.setToCpu();
+  TRACE_HEX(tssSelector);
 	asm (
-			"ltr %0\n\t"
-			::"g"(tssSelector)
+      "movw %0, %%bx\n\t"
+			"ltrw %%bx\n\t"
+			::"g"(tssSelector):"%bx"
 	    );
-	    */
-	while(1);
+
+	//::enable_Int();
+
+	unsigned char i = 0;
+  CHECK_POINT;
+	while(1)
+	{
+		//printf("-> %d \t", i++);
+	}
 }

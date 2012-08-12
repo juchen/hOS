@@ -166,7 +166,102 @@ Idt::Idt()
 	SET_INT_GATE(0x2f);
 }
 
-TSS gDefTss =
+//****************************************************************
+// Implementation of SegDesc
+
+void SegDesc::setBaseLimitDPL(void *base, unsigned int argLimit, unsigned int privilege)
+{
+	limit = (argLimit & 0x0000FFFF);
+	baseLow = (WORD)(((DWORD)base) & 0x0000FFFF);
+	baseMid = (BYTE)((((DWORD)base) >> 16) & 0x00FF);
+	baseHigh = (BYTE)((((DWORD)base) >> 24) & 0x00FF);
+	ctlLow = (BYTE)((privilege & 0x03) << 5);
+	ctlHigh = (BYTE)((limit >> 16) & 0x0F);
+}
+
+void SegDesc::setCodeSeg(void *base, unsigned int limit, unsigned int privilege)
+{
+	setBaseLimitDPL(base, limit, privilege);
+	ctlLow |= 0x98;
+		// P = 1 (present), S = 0 (non-system), type = 1000b (Execute only)
+	ctlHigh |= 0xC0;
+		// G = 1 (use 4K page as the unit of the limit)
+		// D = 1 (32-bit code segment)
+}
+
+void SegDesc::setDataSeg(void *base, unsigned int limit, unsigned int privilege)
+{
+	setBaseLimitDPL(base, limit, privilege);
+	ctlLow |= 0x92;
+		// P = 1 (present), S = 0 (non-system), type = 0010b (Read-Write)
+	ctlHigh = 0xC0 | (limit >> 16) & 0x0F;
+		// G = 1 (use 4K page as the unit of the limit)
+		// B = 1 (32-bit code segment)
+}
+
+void SegDesc::setStackSeg(void *base, unsigned int limit, unsigned int privilege)
+{
+	setBaseLimitDPL(base, limit, privilege);
+	ctlLow |= 0x96;
+		// P = 1 (present), S = 0 (non-system), type = 0110b (Read-Write expand down)
+	ctlHigh = 0xC0 | (limit >> 16) & 0x0F;
+		// G = 1 (use 4K page as the unit of the limit)
+		// B = 1 (32-bit code segment)
+}
+
+void SegDesc::setTssSeg(void *base, unsigned int limit, unsigned int privilege, bool buzy)
+{
+	setBaseLimitDPL(base, limit, privilege);
+	ctlLow |= (0x89 | (buzy ? 0x02 : 0));
+		// P = 1 (present), S = 0 (non-system), type = 10B1b (B is the bit for busy task)
+	ctlHigh = 0x00 | (limit >> 16) & 0x0F;
+		// G = 1 (use 4K page as the unit of the limit)
+		// B = 1 (32-bit code segment)
+}
+
+//****************************************************************
+// Implementation of class Gdt
+
+//Gdt::Gdt()
+//{
+//}
+
+int Gdt::entryNum()
+{
+  return _gdtReg.getEntryNum();
+}
+
+void Gdt::setEntry(unsigned int index, const SegDesc &segDesc)
+{
+  _gdt[index] = segDesc;
+}
+
+void Gdt::setEntryNum(unsigned short n)
+{
+  ASSERT(n <= MAX_GDT_SIZE);
+  _gdtReg.setEntryNum(n);
+}
+
+void Gdt::initFromCpu()
+{
+  _gdtReg.loadFromCpu();
+  DWORD base = _gdtReg.getBase();
+  WORD entryNum = _gdtReg.getEntryNum();
+  SegDesc *src = (SegDesc *)base;
+  for(int i = 0; i < entryNum; i++)
+  {
+    _gdt[i] = src[i];
+  }
+  _gdtReg.setBaseAndEntryNumber(_gdt, entryNum);
+}
+
+void Gdt::setToCpu()
+{
+  _gdtReg.storeToCpu();
+}
+
+/*
+Tss gDefTss =
 {
   .prevTaskLink = 0;
   .reserved1 = 0;
@@ -207,3 +302,4 @@ TSS gDefTss =
   .revAndTrapFlag = 0; // Make sure T flag is zero.
   .ioMapBase = figure out.;
 };
+*/
