@@ -77,6 +77,14 @@ static inline void enable_Int()
 	asm("sti\n\t");
 }
 
+char idle_stack[4096];
+void idle(void *parm)
+{
+  TRACE_HEX(parm);
+  while(1);
+}
+
+#define SEGS_BASE 0x00000000
 void pm_c_entry(void)
 {
 	Screen s;
@@ -113,6 +121,22 @@ void pm_c_entry(void)
 		tssDesc.setTssSeg(&tss, sizeof(tss)-1, 0);
 		tssSelector = gdt.push(tssDesc);
 	}
+
+  unsigned short userCodeSelector;
+  {
+    SegDesc desc; // The code segment for user mode.
+    desc.setCodeSeg(SEGS_BASE, 0x20, 0x03);
+    userCodeSelector = gdt.push(desc) | 0x03;
+  }
+
+  unsigned short userStackSeletor;
+  {
+    SegDesc desc; // The code segment for user mode.
+    desc.setStackSeg(SEGS_BASE, 0x21, 0x03);
+    userStackSeletor = gdt.push(desc) | 0x03;
+  }
+
+
   gdt.setToCpu();
   TRACE_HEX(tssSelector);
 	asm (
@@ -124,6 +148,32 @@ void pm_c_entry(void)
 	//::enable_Int();
 
 	unsigned char i = 0;
+  CHECK_POINT;
+  //asm( "int $0x20\n\t" );
+  //idle((void*)0x333333);
+  int *idle_sp = (int *)(idle_stack + sizeof(idle_stack));
+  *(--idle_sp) = 0x333333; // the parameter to be passed into.
+  *(--idle_sp) = 0x000000; // The 'return address'
+  TRACE_HEX(userStackSeletor);
+  TRACE_HEX(userCodeSelector);
+  asm(
+      "mov %%ds, %%ax\n\t"
+      "xor $0x03, %%ax\n\t" // make the selector used in usermode has correct RPL.
+      "mov %%ax, %%ds\n\t"
+      "mov %%ax, %%es\n\t"
+      "mov %%ax, %%fs\n\t"
+      "mov %%ax, %%gs\n\t"
+      "pushl %0\n\t"  // push SS
+      "pushl %1\n\t"  // push ESP, should be idle_sp.
+      "pushl $0x02\n\t" // push EFLAG
+      "pushl %2\n\t" // push CS
+      "pushl %3\n\t" // push EIP, should be idle.
+      "iret\n\t" // 'return' to the idle function.
+      ::"g"((unsigned int)userStackSeletor),
+      "g"(idle_sp),
+      "g"((unsigned int)userCodeSelector),
+      "g"(idle)
+      );
   CHECK_POINT;
 	while(1)
 	{

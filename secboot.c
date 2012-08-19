@@ -104,12 +104,12 @@ void c_entry(void)
 	SegmentDescriptor_codeSegSetup(&(segDescTable[SEG_CODE_SELECTOR/8]),
 			(void *)SEGS_BASE, 0x20, 0x0);
 	SegmentDescriptor_dataSegSetup(&(segDescTable[SEG_DATA_SELECTOR/8]),
-			(void *)SEGS_BASE, 0x2000, 0x0); // should include the stack segment for manipulation.
+			(void *)SEGS_BASE, 0x2000, 0x3); // should include the stack segment for manipulation.
 	// ^^^ data segment includes all the availble mem (32MB) from 0x18000 to 0x2000000.
 	SegmentDescriptor_stackSegSetup(&(segDescTable[SEG_STACK_SELECTOR/8]),
 			(void *)SEGS_BASE, 0x21, 0x0);
 	SegmentDescriptor_dataSegSetup(&(segDescTable[SEG_VIDEO_SELECTOR/8]),
-			(void *)0x000B8000, 0x3, 0x0);
+			(void *)0x000B8000, 0x3, 0x3);
 	gdtr.len = sizeof(segDescTable) - 1;
 	gdtr.base = /*SEGS_BASE*/ 0x18000 + ((DWORD)(segDescTable)); // This is linear address. Not match with 16-bit logic address.
 	//asm("mov %0, %%edx\n\t"::"g"(&gdtr));
