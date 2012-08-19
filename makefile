@@ -36,13 +36,13 @@ secboot.elf:$(SEC_ENTRY_OBJ) $(SEC_OBJS) $(SEC_CPP_OBJS)
 	$(LD) -o secboot.elf $(SEC_ENTRY_OBJ) $(SEC_OBJS) $(SEC_CPP_OBJS) -Tlink.ld -g
 
 boot1.o:boot1.c
-	$(CC) -c $< $(CFLAG) -Os
+	$(CC) -c $< $(CFLAG) 
 
 %.o:%.c
 	$(CC) -c $< $(CFLAG)
 
 %.s:%.c
-	$(CC) -S $< $(CFLAG)
+	$(CC) -S $< $(CFLAG) 
 
 %.o:%.cpp
 	$(CPP) -c $< $(CPPFLAG)

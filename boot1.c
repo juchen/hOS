@@ -20,12 +20,13 @@ struct DiskAddrPack
 	WORD addr;
 	WORD seg;
 	QWORD lba;
-};
+} __attribute__((packed));
 
-static void __readSectors(unsigned short seg, unsigned short addr, 
+void __readSectors(unsigned short seg, unsigned short addr, 
 		DeviceIndex di, unsigned int lba, unsigned int secnum)
 {
-	DiskAddrPack *dap;
+  DiskAddrPack theDap;
+	DiskAddrPack *dap = &theDap;
 	dap->sizeOfPack = sizeof(DiskAddrPack);
 	dap->reserved = 0;
 	dap->numOfBlocks = secnum;
@@ -33,11 +34,11 @@ static void __readSectors(unsigned short seg, unsigned short addr,
 	dap->addr = addr;
 	dap->lba = lba;
 	asm(
-			"movl %1, %%esi\n\t"
+			"mov %1, %%si\n\t"
 			"movb $0x42, %%ah\n\t"
 			"movb %0, %%dl\n\t"
 			"int $0x13\n\t"
-			::"g"(di),"g"(dap):"ah","dl","esi"
+			::"g"(di),"g"((unsigned short)dap):"ah","dl","si"
 	   );
 }
 
@@ -77,15 +78,18 @@ void c_entry(void)
 	//printChar('1');
 	volatile DWORD *b;
 	DWORD i;
-	printString("Start loading", 13, 20); 
+	//printString("Start loading", 13, 20); 
 	for(b = (DWORD *)(0x8000); b < (DWORD *)(0x8000 + 512 * 62 / 4); b++)
 	{ // zero memory for bss section of the code being loaded.
 		*b = 0;
 	}
+	//printString("Start 2oading", 13, 21); 
 	for(i = 1; i < 63; i++)
 	{
+	  //printString("Start ioading", 13, i); 
 		__readSectors(0x1800, 512*(i-1), DevIndx_HD0, i, 1);
 	}
+	//printString("Start 3oading", 13, 22); 
 	asm(
 		"ljmpl $0x1800, $0\n\t"
 	   );
