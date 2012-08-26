@@ -4,6 +4,8 @@
 #include "isr.h"
 #include "timer8253.h"
 #include "x86functions.h"
+#include "idlethread.h"
+#include "scheduler.h"
 
 extern "C" {
 void pm_c_entry(void);
@@ -84,6 +86,19 @@ void idle(void *parm)
   while(1);
 }
 
+extern "C" {
+  void test_stack();
+}
+
+void test_stack()
+{
+  asm( "pushl %ax" );
+  {
+    volatile int a;
+    a = 5;
+  }
+}
+
 #define SEGS_BASE 0x00000000
 void pm_c_entry(void)
 {
@@ -147,15 +162,20 @@ void pm_c_entry(void)
 
 	//::enable_Int();
 
-	unsigned char i = 0;
   CHECK_POINT;
   //asm( "int $0x20\n\t" );
   //idle((void*)0x333333);
   int *idle_sp = (int *)(idle_stack + sizeof(idle_stack));
   *(--idle_sp) = 0x333333; // the parameter to be passed into.
-  *(--idle_sp) = 0x000000; // The 'return address'
+  *(--idle_sp) = 0x000000; // The 'return address
   TRACE_HEX(userStackSeletor);
   TRACE_HEX(userCodeSelector);
+
+  IdleThread idleThread;
+  Scheduler scheduler(&idleThread);
+
+  ContextEsp ctxEsp;
+  ContextEbp *ctxEbp; // a dummy one for scheduler to fill in context.
   asm(
       "mov %%ds, %%ax\n\t"
       "xor $0x03, %%ax\n\t" // make the selector used in usermode has correct RPL.
@@ -163,17 +183,23 @@ void pm_c_entry(void)
       "mov %%ax, %%es\n\t"
       "mov %%ax, %%fs\n\t"
       "mov %%ax, %%gs\n\t"
-      "pushl %0\n\t"  // push SS
-      "pushl %1\n\t"  // push ESP, should be idle_sp.
+      "pushl %1\n\t"  // push SS
+      "pushl $0\n\t"  // push ESP, going to be set by Scheduler::switchTo().
       "pushl $0x02\n\t" // push EFLAG
       "pushl %2\n\t" // push CS
-      "pushl %3\n\t" // push EIP, should be idle.
-      "iret\n\t" // 'return' to the idle function.
-      ::"g"((unsigned int)userStackSeletor),
-      "g"(idle_sp),
-      "g"((unsigned int)userCodeSelector),
-      "g"(idle)
+      "pushl $0\n\t" // push EIP, going to be set by Scheduler::switchTo().
+      "pushl $0\n\t" // This position is for ebp right after a function call.
+      "mov %%esp, %0\n\t" // get the pointer to ebp context. (In general function, mov %esp, %ebp right on entry)
+      :"=g"(ctxEbp)
+      :"g"((unsigned int)userStackSeletor),
+      "g"((unsigned int)userCodeSelector)
       );
+  Context ctx = { ctxEbp, &ctxEsp };
+  scheduler.switchTo(&ctx); // !! Must iret right away to keep stack coherent.
+  asm(
+      "pop %ebp\n\t"
+      "iret\n\t" // 'return' to the idle function.
+     );
   CHECK_POINT;
 	while(1)
 	{

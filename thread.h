@@ -1,23 +1,39 @@
 #ifndef _THREAD_H_
 #define _THREAD_H_
+#include "types.h"
 
-struct Context
+struct ContextEsp // the esp reg stores the just pushed in data.
 {
-  DWORD _gs;
-  DWORD _fs;
-  DWORD _es;
-  DWORD _ds;
+//  DWORD _gs;
+//  DWORD _fs;
+//  DWORD _es;
+//  DWORD _ds;
   DWORD _edi;
   DWORD _esi;
   DWORD _edx;
   DWORD _ecx;
   DWORD _ebx;
   DWORD _eax;
+};
+
+struct ContextEbp // the ebp reg stores the return addresses of the stack frame.
+{
+//  DWORD _gs;
+//  DWORD _fs;
+//  DWORD _es;
+//  DWORD _ds;
+  DWORD _ebp;
   DWORD _eip;
   DWORD _cs;
   DWORD _eflags;
   DWORD _esp;
   DWORD _ss;
+};
+
+struct Context
+{
+  ContextEbp *_contextEbp;
+  ContextEsp *_contextEsp;
 };
 
 class Thread;
@@ -30,22 +46,27 @@ class Thread
 {
 private:
   Thread *_next;
-  Context _context;
+  ContextEbp _ctxEbp;
+  ContextEsp _ctxEsp;
   BYTE *_stack;
   unsigned int _stackByteCnt;
 
   Thread(); // hide default constructor
 
+  static void invokeThread(Thread *This);
+
 protected:
 public:
   Thread(BYTE *stack, unsigned int stackByteCnt);
-  Thread *next() {return _next};
-  virtual unsigned int threadProc();
+  Thread *next() { return _next; };
+  virtual unsigned int threadProc() {}; // FIXME: Turn this into a pure virtual funtion.
   void setNext(Thread *next) { _next = next; };
-  void 
+  void loadContext(Context *ctx);
+  void storeContext(Context *ctx);
 };
 
 
+/*
 class ThreadList
 {
 private:
@@ -102,5 +123,6 @@ public:
     return r;
   }
 };
+*/
 
 #endif // _THREAD_H_
