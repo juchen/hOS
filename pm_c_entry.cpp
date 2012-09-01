@@ -92,7 +92,7 @@ extern "C" {
 
 void test_stack()
 {
-  asm( "pushl %ax" );
+  asm( "pushl %eax" );
   {
     volatile int a;
     a = 5;
@@ -194,8 +194,16 @@ void pm_c_entry(void)
       :"g"((unsigned int)userStackSeletor),
       "g"((unsigned int)userCodeSelector)
       );
+  asm( // prepare stack space for function call of 'switchTo'.
+      "pushl $0\n\t"
+      "pushl $0\n\t"
+     );
   Context ctx = { ctxEbp, &ctxEsp };
   scheduler.switchTo(&ctx); // !! Must iret right away to keep stack coherent.
+  asm( // clear stack space for function call of 'switchTo'.
+      "popl %eax\n\t"
+      "popl %eax\n\t"
+     );
   asm(
       "pop %ebp\n\t"
       "iret\n\t" // 'return' to the idle function.
