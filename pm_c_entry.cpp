@@ -6,6 +6,7 @@
 #include "x86functions.h"
 #include "idlethread.h"
 #include "scheduler.h"
+#include "genthread.h"
 
 extern "C" {
 void pm_c_entry(void);
@@ -86,18 +87,22 @@ void idle(void *parm)
   while(1);
 }
 
-extern "C" {
-  void test_stack();
-}
-
-void test_stack()
+class MyThread : public GenThread
 {
-  asm( "pushl %eax" );
+public:
+  MyThread(int id) : _cnt(0), _id(id) {}
+  virtual unsigned int threadProc()
   {
-    volatile int a;
-    a = 5;
+    while(_cnt < 0x80000000)
+    {
+      _cnt += _id;
+      //printf("id = %d\n", _id);
+    }
   }
-}
+private:
+  unsigned int _cnt;
+  unsigned int _id;
+};
 
 #define SEGS_BASE 0x00000000
 void pm_c_entry(void)
@@ -154,6 +159,7 @@ void pm_c_entry(void)
 
   gdt.setToCpu();
   TRACE_HEX(tssSelector);
+  TRACE_HEX(&tss);
 	asm (
       "movw %0, %%bx\n\t"
 			"ltrw %%bx\n\t"
@@ -171,8 +177,15 @@ void pm_c_entry(void)
   TRACE_HEX(userStackSeletor);
   TRACE_HEX(userCodeSelector);
 
+  Scheduler scheduler;
+  Scheduler::setScheduler(&scheduler);
+  Thread::setScheduler(&scheduler);
   IdleThread idleThread;
-  Scheduler scheduler(&idleThread);
+  MyThread thread1(1); // create two threads
+  MyThread thread2(2);
+
+  TRACE_HEX(&thread1);
+  TRACE_HEX(&thread2);
 
   ContextEsp ctxEsp;
   ContextEbp *ctxEbp; // a dummy one for scheduler to fill in context.
@@ -199,10 +212,15 @@ void pm_c_entry(void)
       "pushl $0\n\t"
      );
   Context ctx = { ctxEbp, &ctxEsp };
-  scheduler.switchTo(&ctx); // !! Must iret right away to keep stack coherent.
+  scheduler.start(&ctx); // !! Must iret right away to keep stack coherent.
   asm( // clear stack space for function call of 'switchTo'.
       "popl %eax\n\t"
       "popl %eax\n\t"
+     );
+  asm( // store ss0 and esp0 to TSS.
+      "mov %%ss, %0\n\t"
+      "mov %%esp, %1\n\t"
+      :"=g"(tss.ss0), "=g"(tss.esp0)
      );
   asm(
       "pop %ebp\n\t"

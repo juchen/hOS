@@ -2,6 +2,8 @@
 #define _THREAD_H_
 #include "types.h"
 
+class Scheduler;
+
 struct ContextEsp // the esp reg stores the just pushed in data.
 {
 //  DWORD _gs;
@@ -34,6 +36,7 @@ struct Context
 {
   ContextEbp *_contextEbp;
   ContextEsp *_contextEsp;
+  bool isToSwitch();
 };
 
 class Thread;
@@ -54,9 +57,17 @@ private:
   Thread(); // hide default constructor
 
   static void invokeThread(Thread *This);
+  static Scheduler *_scheduler;
+
+  enum FLAG
+  {
+    F_IF = (0x01 << 9),
+  };
 
 protected:
 public:
+  static void setScheduler(Scheduler *sch);
+  Scheduler *getScheduler();
   Thread(BYTE *stack, unsigned int stackByteCnt);
   Thread *next() { return _next; };
   virtual unsigned int threadProc() {}; // FIXME: Turn this into a pure virtual funtion.
