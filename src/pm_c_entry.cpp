@@ -7,6 +7,7 @@
 #include "idlethread.h"
 #include "scheduler.h"
 #include "genthread.h"
+#include "comport.h"
 
 extern "C" {
 void pm_c_entry(void);
@@ -107,6 +108,8 @@ private:
 #define SEGS_BASE 0x00000000
 void pm_c_entry(void)
 {
+  ComPort comPort;
+  putChar_setComPort(&comPort);
 	Screen s;
 	s.cls();
 	printf("Booting hOS...\n");

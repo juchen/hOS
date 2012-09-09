@@ -1,8 +1,11 @@
 #define _PUTCHAR_CPP_
 #include "putchar.h"
 #include "secboot.h"
+#include "comport.h"
+#include "debug.h"
 
 static Screen *screen;
+static ComPort *comPort = 0;
 
 Screen::Screen():curPos(0), width(80), height(25), _attr(0x07)
 {
@@ -80,8 +83,15 @@ void Screen::cls()
 	curPos = 0;
 }
 
+void putChar_setComPort(ComPort *cp)
+{
+  comPort = cp;
+}
+
 int putchar(int c)
 {
+  ASSERT(0 != comPort);
+  comPort->transChar(c);
 	screen->putchar(c);
 	return 0;
 }

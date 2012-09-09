@@ -12,17 +12,6 @@
 #endif
 
 #ifdef __cplusplus
-extern "C" {
-#endif
-
-int putchar(int c);
-int puts(const char* str);
-
-#ifdef __cplusplus
-}
-#endif
-
-#ifdef __cplusplus
 class Screen
 {
 private:
@@ -36,7 +25,27 @@ public:
 	void putchar(int c);
 	void cls();
 };
+
+class ComPort;
+
+#else
+
+typedef struct ComPort ComPort;
+
 #endif // __cplusplus
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+int putchar(int c);
+int puts(const char* str);
+
+void putChar_setComPort(ComPort *);
+
+#ifdef __cplusplus
+}
+#endif
 
 #undef EXTERN
 #endif //_PUTCHAR_H_
