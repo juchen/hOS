@@ -10,12 +10,12 @@ struct ContextEsp // the esp reg stores the just pushed in data.
 //  DWORD _fs;
 //  DWORD _es;
 //  DWORD _ds;
+  DWORD _eax;
+  DWORD _ebx;
+  DWORD _ecx;
+  DWORD _edx;
   DWORD _edi;
   DWORD _esi;
-  DWORD _edx;
-  DWORD _ecx;
-  DWORD _ebx;
-  DWORD _eax;
 };
 
 struct ContextEbp // the ebp reg stores the return addresses of the stack frame.

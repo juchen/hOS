@@ -8,6 +8,8 @@
 #include "scheduler.h"
 #include "genthread.h"
 #include "comport.h"
+#include "syscall.h"
+#include "user_syscall.h"
 
 extern "C" {
 void pm_c_entry(void);
@@ -16,6 +18,7 @@ void pm_c_entry(void);
 static inline void init_ISR(Idt &idt)
 {
 	idt.setTimerISR(timerISR);
+  idt.setSysCallISR(syscallISR);
 	idt.setToCPU();
 }
 
@@ -97,7 +100,7 @@ public:
     while(_cnt < 0x80000000)
     {
       _cnt += _id;
-      //printf("id = %d\n", _id);
+      printf("id = %d\n", _id);
     }
   }
 private:
@@ -109,14 +112,15 @@ private:
 void pm_c_entry(void)
 {
   ComPort comPort;
-  putChar_setComPort(&comPort);
+  //putChar_setComPort(&comPort);
+  SysCall_setComPort(&comPort); // set this only after syscall isr is installed.
 	Screen s;
 	s.cls();
-	printf("Booting hOS...\n");
 	Idt idt;
 	Timer8253 timer8253;
 	::init_ISR(idt);
 	::init_IntCtrlr();
+	printf("Booting hOS...\n");
 	TRACE_HEX(pm_c_entry);
 	//asm("int $0x20\n\t");
   //
@@ -183,6 +187,7 @@ void pm_c_entry(void)
   Scheduler scheduler;
   Scheduler::setScheduler(&scheduler);
   Thread::setScheduler(&scheduler);
+  SysCall_u_setScheduler(&scheduler);
   IdleThread idleThread;
   MyThread thread1(1); // create two threads
   MyThread thread2(2);
@@ -192,6 +197,14 @@ void pm_c_entry(void)
 
   ContextEsp ctxEsp;
   ContextEbp *ctxEbp; // a dummy one for scheduler to fill in context.
+
+
+  int i = 0;
+  while(1)
+  {
+    TRACE_HEX(i++);
+  }
+
   asm(
       "mov %%ds, %%ax\n\t"
       "xor $0x03, %%ax\n\t" // make the selector used in usermode has correct RPL.

@@ -41,7 +41,7 @@ extern "C" {
 int putchar(int c);
 int puts(const char* str);
 
-void putChar_setComPort(ComPort *);
+//void putChar_setComPort(ComPort *);
 
 #ifdef __cplusplus
 }

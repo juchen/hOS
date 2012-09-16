@@ -3,9 +3,10 @@
 #include "secboot.h"
 #include "comport.h"
 #include "debug.h"
+#include "user_syscall.h"
 
 static Screen *screen;
-static ComPort *comPort = 0;
+//static ComPort *comPort = 0;
 
 Screen::Screen():curPos(0), width(80), height(25), _attr(0x07)
 {
@@ -83,15 +84,21 @@ void Screen::cls()
 	curPos = 0;
 }
 
+/*
 void putChar_setComPort(ComPort *cp)
 {
   comPort = cp;
 }
+*/
 
 int putchar(int c)
 {
-  ASSERT(0 != comPort);
-  comPort->transChar(c);
+  //ASSERT(0 != comPort);
+  SysCall_u_putChar(c);
+  if(c == '\n')
+  {
+    SysCall_u_putChar('\r');
+  }
 	screen->putchar(c);
 	return 0;
 }

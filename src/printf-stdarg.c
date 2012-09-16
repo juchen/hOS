@@ -28,6 +28,7 @@
 
 #include <stdarg.h>
 #include "putchar.h" // by Hsuan-Ju Chen
+#include "user_syscall.h"
 
 static void printchar(char **str, int c)
 {
@@ -185,10 +186,14 @@ static int print(char **out, const char *format, va_list args )
 
 int printf(const char *format, ...)
 {
-        va_list args;
-        
-        va_start( args, format );
-        return print( 0, format, args );
+  int ret;
+  va_list args;
+  va_start( args, format );
+
+  SysCall_u_lockScheduler();
+  ret = print( 0, format, args );
+  SysCall_u_unlockScheduler();
+  return ret;
 }
 
 int sprintf(char *out, const char *format, ...)

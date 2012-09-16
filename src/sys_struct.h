@@ -133,7 +133,7 @@ struct IdtDesc
 	void set(void (*addr)(void), IntGateType t);
 } __attribute__((aligned(4)));
 
-#define MAX_INT_NUM 0x30
+#define MAX_INT_NUM 0x40 // HW interrupt map to 0x20~0x2F, SW: 0x30~0x3F
 class Idt
 {
 private:
@@ -153,5 +153,9 @@ public:
 	{
 		setIntGate(0x20, addr);
 	}
+  void setSysCallISR(void (*addr)(void))
+  {
+    setIntGate(0x30, addr);
+  }
 };
 #endif // _SYS_STRUCT_H_

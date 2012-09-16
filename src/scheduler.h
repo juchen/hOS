@@ -15,6 +15,8 @@ public:
   void contextSwitch(Context *ctx);
   static Scheduler *instance();
   static void setScheduler(Scheduler *sch);
+  void lock();
+  void unlock();
 
 private:
   Thread *mCurrent;
@@ -23,6 +25,7 @@ private:
   void addThreadToTail(Thread *thr);
   Thread *getThreadFromHead();
   static Scheduler *_sch;
+  int mLockCount;
 };
 
 #endif // _SCHEDULER_H_

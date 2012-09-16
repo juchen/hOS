@@ -12,7 +12,6 @@
 
 Timer8253::Timer8253()
 {
-	CHECK_POINT;
 	outb(MODE_CMD, 0x36); // channel 0, rw LSB/MSB, mode3 (square wave), Binary.
 	io_wait();
 	outb(CH0_DATA, LOBYTE(DIVISOR));

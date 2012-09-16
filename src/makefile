@@ -23,6 +23,8 @@ SEC_CPP_OBJS = debug.o\
 							 idlethread.o\
 							 comport.o\
 							 isr.o\
+							 syscall.o\
+							 user_syscall.o\
 
 TOTAL_OBJS = $(OBJS) $(SEC_OBJS)
 TOTAL_CPP_OBJS = $(SEC_CPP_OBJS)

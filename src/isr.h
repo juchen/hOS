@@ -5,6 +5,7 @@
 extern "C" {
 #endif
 void timerISR(void);
+void syscallISR(void);
 #ifdef __cplusplus
 }
 #endif

@@ -9,6 +9,8 @@ IdleThread::IdleThread()
 unsigned int IdleThread::threadProc()
 {
   CHECK_POINT;
-  while(1) {}
+  while(1)
+  {
+  }
   return 0;
 }

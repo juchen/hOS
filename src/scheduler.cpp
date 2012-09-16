@@ -14,7 +14,8 @@ Scheduler::Scheduler(Thread *idle)
 Scheduler::Scheduler()
   : mCurrent(0),
   mReadyHead(0),
-  mReadyTail(0)
+  mReadyTail(0),
+  mLockCount(0)
 {
 }
 
@@ -79,7 +80,7 @@ Thread *Scheduler::getThreadFromHead()
 
 void Scheduler::contextSwitch(Context *ctx)
 {
-  if(ctx->isToSwitch() && 0 != mReadyHead)
+  if(mLockCount > 0 && ctx->isToSwitch() && 0 != mReadyHead)
   {
     mCurrent->storeContext(ctx);
     addThreadToTail(mCurrent);
@@ -106,4 +107,15 @@ void contextSwitch(Context *ctx)
   }
 }
 */
+
+void Scheduler::lock()
+{
+  mLockCount++;
+}
+
+void Scheduler::unlock()
+{
+  ASSERT(mLockCount > 0);
+  mLockCount--;
+}
 
