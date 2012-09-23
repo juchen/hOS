@@ -3,7 +3,7 @@
 
 #include "printf-stdarg.h"
 
-#define ASSERT(x) onAssert(__FILE__, __LINE__, x)
+#define ASSERT(x) onAssert(__FILE__, __LINE__, (x))
 
 void onAssert(const char *filename, unsigned int linenum, bool condition);
 

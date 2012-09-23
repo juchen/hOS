@@ -16,38 +16,6 @@ void c_timerISR(Context *ctx)
   outb(0x20, 0x20); // clear PIC
 }
 
-void c_syscallISR(Context *ctx)
-{
-  int callNo = ctx->_contextEsp->_eax;
-  void *callParam = (void*)ctx->_contextEsp->_ebx;
-  if(SYS_CALL_PUT_CHAR == callNo) // not to do context switch.
-  {
-    SysCall_PutCharParam *param = (SysCall_PutCharParam *)callParam;
-    SysCall_putChar(param);
-    ctx->_contextEsp->_eax = 0; // eax is used to carry return value
-  }
-  else if(SYS_CALL_LOCK_SCHEDULER == callNo)
-  {
-    SysCall_lockScheduler((Scheduler*)callParam);
-  }
-  else if(SYS_CALL_UNLOCK_SCHEDULER == callNo)
-  {
-    SysCall_unlockScheduler((Scheduler*)callParam);
-  }
-  else
-  {
-    switch(callNo)
-    {
-      default:
-        // Invalid system call. Do nothing.
-        break;
-    }
-    Scheduler *sch = Scheduler::instance();
-    sch->contextSwitch(ctx);
-  }
-  //outb(0x20, 0x20);
-}
-
 void timerISR(void)
 {
   asm(

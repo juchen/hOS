@@ -80,7 +80,7 @@ Thread *Scheduler::getThreadFromHead()
 
 void Scheduler::contextSwitch(Context *ctx)
 {
-  if(mLockCount > 0 && ctx->isToSwitch() && 0 != mReadyHead)
+  if(0 == mLockCount && ctx->isToSwitch() && 0 != mReadyHead)
   {
     mCurrent->storeContext(ctx);
     addThreadToTail(mCurrent);

@@ -250,6 +250,15 @@ void SegDesc::setTssSeg(void *base, unsigned int limit, unsigned int privilege, 
 		// B = 1 (32-bit code segment)
 }
 
+void CallGateDesc::setCallGate(unsigned short selector_, void offset_(void *), unsigned int dpl_, unsigned int paramCount_)
+{
+  selector = selector_;
+  offLow = (0xFFFF & ((unsigned int)offset_));
+  offHi = (0xFFFF & (((unsigned int)offset_) >> 16));
+  paramCount = paramCount_;
+  ctl = 0b10001100 | (dpl_ << 5);
+}
+
 //****************************************************************
 // Implementation of class Gdt
 

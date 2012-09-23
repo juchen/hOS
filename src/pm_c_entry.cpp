@@ -97,7 +97,7 @@ public:
   MyThread(int id) : _cnt(0), _id(id) {}
   virtual unsigned int threadProc()
   {
-    while(_cnt < 0x80000000)
+    while(true)
     {
       _cnt += _id;
       printf("id = %d\n", _id);
@@ -120,15 +120,15 @@ void pm_c_entry(void)
 	Timer8253 timer8253;
 	::init_ISR(idt);
 	::init_IntCtrlr();
-	printf("Booting hOS...\n");
-	TRACE_HEX(pm_c_entry);
+	//printf("Booting hOS...\n");
+	//TRACE_HEX(pm_c_entry);
 	//asm("int $0x20\n\t");
   //
   // Before enabling interrupts. TSS has to be setup. 201111271528
 	Gdt gdt; // Copy original GDT and give more segment descriptor, TSS, user mode segs, etc.
 	gdt.initFromCpu();
 
-  CHECK_POINT;
+  //CHECK_POINT;
 	Tss tss; // The single TSS that gives SS:SP for every privellege.
   // We need not to init this TSS cause the task need no initialization.
   // (It is running here)
@@ -143,8 +143,8 @@ void pm_c_entry(void)
 	unsigned short tssSelector;
 	{ // This block to make some variable local in local.
 		SegDesc tssDesc; // This variable will be released from the stack after leaving this block.
-    TRACE_HEX(sizeof(tss));
-    TRACE_HEX(sizeof(Tss));
+    //TRACE_HEX(sizeof(tss));
+    //TRACE_HEX(sizeof(Tss));
 		tssDesc.setTssSeg(&tss, sizeof(tss)-1, 0);
 		tssSelector = gdt.push(tssDesc);
 	}
@@ -163,10 +163,18 @@ void pm_c_entry(void)
     userStackSeletor = gdt.push(desc) | 0x03;
   }
 
+  unsigned short sysCallGateSelector;
+  {
+    CallGateDesc desc; // the call gate descriptor for sys call.
+    desc.setCallGate(8 /* FIXME: evil magic number */, SysCall_syscall, 0x03, 1); 
+    sysCallGateSelector = gdt.push(*((SegDesc*)&desc)) | 0x03;
+    SysCall_u_setCallGateSelector(sysCallGateSelector);
+  }
+
 
   gdt.setToCpu();
-  TRACE_HEX(tssSelector);
-  TRACE_HEX(&tss);
+  //TRACE_HEX(tssSelector);
+  //TRACE_HEX(&tss);
 	asm (
       "movw %0, %%bx\n\t"
 			"ltrw %%bx\n\t"
@@ -175,14 +183,14 @@ void pm_c_entry(void)
 
 	//::enable_Int();
 
-  CHECK_POINT;
+  //CHECK_POINT;
   //asm( "int $0x20\n\t" );
   //idle((void*)0x333333);
   int *idle_sp = (int *)(idle_stack + sizeof(idle_stack));
   *(--idle_sp) = 0x333333; // the parameter to be passed into.
   *(--idle_sp) = 0x000000; // The 'return address
-  TRACE_HEX(userStackSeletor);
-  TRACE_HEX(userCodeSelector);
+  //TRACE_HEX(userStackSeletor);
+  //TRACE_HEX(userCodeSelector);
 
   Scheduler scheduler;
   Scheduler::setScheduler(&scheduler);
@@ -199,11 +207,13 @@ void pm_c_entry(void)
   ContextEbp *ctxEbp; // a dummy one for scheduler to fill in context.
 
 
+#if 0
   int i = 0;
   while(1)
   {
     TRACE_HEX(i++);
   }
+#endif
 
   asm(
       "mov %%ds, %%ax\n\t"

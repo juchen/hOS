@@ -24,6 +24,16 @@ struct SegDesc
 	}
 } __attribute__((packed)) __attribute__((aligned(4)));
 
+struct CallGateDesc
+{
+  WORD offLow; // low 16 bit of offset.
+  WORD selector;
+  BYTE paramCount; // noly bit 4:0
+  BYTE ctl; // 3:0 -- has to be 1100b, 7 - Gate Valid (should be 1), 6:5 - DPL, 4 - should be 0.
+  WORD offHi; // hight 16 bit of offset.
+  void setCallGate(unsigned short selector, void offset(void *), unsigned int dpl, unsigned int paramCount_);
+};
+
 /// Represent GDTR
 ///
 struct GdtReg
