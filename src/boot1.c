@@ -38,7 +38,7 @@ void __readSectors(unsigned short seg, unsigned short addr,
 			"movb $0x42, %%ah\n\t"
 			"movb %0, %%dl\n\t"
 			"int $0x13\n\t"
-			::"g"(di),"g"((unsigned short)dap):"ah","dl","si"
+			::"g"((char)di),"g"((unsigned short)dap):"ah","dl","si"
 	   );
 }
 

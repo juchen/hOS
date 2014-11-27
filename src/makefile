@@ -1,12 +1,14 @@
 CC=gcc
 CPP=g++
-AS=as
-LD=ld
+AS=gcc -c
+LD=gcc
 
-CFLAG = -fno-stack-protector -nostdlib -g
+CFLAG = -m32 -fno-stack-protector -nostdlib -g
+ASFLAG = -m32
 #-ffreestanding
 CPPFLAG = $(CFLAG) -fno-rtti -fno-exceptions 
-LDFLAG = -e main -N --oformat binary -Ttext 0x0
+#LDFLAG = -m32 -Wl,-e main -Wl,-N -Wl,--oformat binary -Wl,-Ttext 0x0
+LDFLAG = -Wl,-N -Wl,-emain -Wl,--oformat=binary -Wl,-Ttext=0x0
 ENTRY_OBJ = boot3.o
 OBJS = boot1.o
 
@@ -40,34 +42,34 @@ clean:
 	rm -rf boot.bin secboot.bin
 
 boot.bin:$(ENTRY_OBJ) $(OBJS)
-	$(LD) -o boot.bin $(ENTRY_OBJ) $(OBJS) $(LDFLAG)
+	$(LD) $(CFLAG) $(LDFLAG) -o boot.bin $(ENTRY_OBJ) $(OBJS) 
 
 secboot.bin:secboot.elf
 	objcopy -O binary secboot.elf secboot.bin
 
 secboot.elf:$(SEC_ENTRY_OBJ) $(SEC_OBJS) $(SEC_CPP_OBJS)
-	$(LD) -o secboot.elf $(SEC_ENTRY_OBJ) $(SEC_OBJS) $(SEC_CPP_OBJS) -Tlink.ld -g
+	$(LD) $(CFLAG) -o secboot.elf $(SEC_ENTRY_OBJ) $(SEC_OBJS) $(SEC_CPP_OBJS) -Wl,-Tlink.ld 
 
-boot1.o:boot1.c
-	$(CC) -c $< $(CFLAG) 
+#boot1.o:boot1.c
+#	$(CC) -c $(CFLAG) $<
 
 %.o:%.c
-	$(CC) -c $< $(CFLAG)
+	$(CC) -c $(CFLAG) $<
 
 %.s:%.c
-	$(CC) -S $< $(CFLAG) 
+	$(CC) -S $(CFLAG) $<
 
 %.o:%.cpp
-	$(CPP) -c $< $(CPPFLAG)
+	$(CPP) -c $(CPPFLAG) $<
 
 %.s:%.cpp
-	$(CPP) -S $< $(CPPFLAG)
+	$(CPP) -S $(CPPFLAG) $<
 
 %.o:%.C
-	$(CPP) -c $< $(CPPFLAG)
+	$(CPP) -c $(CPPFLAG) $<
 
 %.o:%.s
-	$(AS) -o $@ $< $(ASFLAG)
+	$(AS) $(ASFLAG) -o $@ $< 
 
 dependency:
 	$(CC) -MM $(C_FILES) $(CPP_FILES) > dependency.mak
