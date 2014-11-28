@@ -10,20 +10,26 @@ SECTIONS
 {
 	.text16 :
 	{
-		*secbootinit*.o(.text*)
-		*secboot*.o(.text*)
+		*/secbootinit.s.o(.text*)
+		*secbootinit.o(.text*)
+		*/secboot.c.o(.text*)
+		*secboot.o(.text*)
 	} > ram16 AT > rom16
 
 	.data16 . :
 	{
-		*secbootinit*.o(.data* .rodata* COMMON)
-		*secboot*.o(.data* .rodata* COMMON)
+		*/secbootinit.s.o(.data* .rodata* COMMON)
+		*secbootinit.o(.data* .rodata* COMMON)
+		*/secboot.c.o(.data* .rodata* COMMON)
+		*secboot.o(.data* .rodata* COMMON)
 	} > ram16 AT > rom16
 
 	.bss16 . :
 	{
-		*secbootinit*.o(.bss*)
-		*secboot*.o(.bss*)
+		*/secbootinit.s.o(.bss*)
+		*secbootinit.o(.bss*)
+		*/secboot.c.o(.bss*)
+		*secboot.o(.bss*)
 	} > ram16 AT > rom16
 
 	. = 0x1000;

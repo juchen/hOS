@@ -15,11 +15,13 @@ add_custom_command(OUTPUT pm_entry.s.o
     COMMAND gcc -m32 -c -o ${CMAKE_CURRENT_BINARY_DIR}/pm_entry.s.o ${CMAKE_CURRENT_SOURCE_DIR}/pm_entry.s
     DEPENDS pm_entry.s)
 
+# secbootinit.s.o has to be the first 16-bit file. But cmake postpone custom command outputs.
+# Make secboot.c a lib so that it appears in rear of secbootinit.s.o
+add_library(secboot STATIC secboot.c)
 
 add_executable(secboot.elf
-    pm_entry.s.o
     secbootinit.s.o
-    secboot.c
+    pm_entry.s.o
     printf-stdarg.c
     debug.cpp
     putchar.cpp
@@ -39,6 +41,9 @@ add_executable(secboot.elf
 target_link_libraries(secboot.elf
     -m32
     -nostdlib
+    -fno-stack-protector
     -Wl,-T${CMAKE_CURRENT_SOURCE_DIR}/link.ld
+    -Wl,-emain
+    secboot
     )
 

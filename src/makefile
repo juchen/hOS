@@ -1,7 +1,7 @@
 CC=gcc
 CPP=g++
 AS=gcc -c
-LD=gcc
+LD=g++
 
 CFLAG = -m32 -fno-stack-protector -nostdlib -g
 ASFLAG = -m32
