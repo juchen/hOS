@@ -25,14 +25,15 @@ struct DiskAddrPack
 void __readSectors(unsigned short seg, unsigned short addr, 
 		DeviceIndex di, unsigned int lba, unsigned int secnum)
 {
-  DiskAddrPack theDap;
-	DiskAddrPack *dap = &theDap;
+  volatile DiskAddrPack theDap;
+	volatile DiskAddrPack *dap = &theDap;
 	dap->sizeOfPack = sizeof(DiskAddrPack);
 	dap->reserved = 0;
 	dap->numOfBlocks = secnum;
 	dap->seg = seg;
 	dap->addr = addr;
 	dap->lba = lba;
+    (void)theDap;
 	asm(
 			"mov %1, %%si\n\t"
 			"movb $0x42, %%ah\n\t"
