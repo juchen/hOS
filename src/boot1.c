@@ -79,16 +79,18 @@ void c_entry(void)
 	//printChar('1');
 	volatile DWORD *b;
 	DWORD i;
-	//printString("Start loading", 13, 20); 
+
 	for(b = (DWORD *)(0x8000); b < (DWORD *)(0x8000 + 512 * 62 / 4); b++)
 	{ // zero memory for bss section of the code being loaded.
 		*b = 0;
 	}
-	//printString("Start 2oading", 13, 21); 
-	for(i = 1; i < 63; i++)
+
+	for(i = 1; i < 127; i++)
 	{
-	  //printString("Start ioading", 13, i); 
-		__readSectors(0x1800, 512*(i-1), DevIndx_HD0, i, 1);
+        unsigned int addr = 0x18000 + (512 * (i - 1));
+        unsigned short seg = (addr / 0x10000) * 0x1000;
+        unsigned short off = (addr % 0x10000);
+		__readSectors(seg, off, DevIndx_HD0, i, 1);
 	}
 	//printString("Start 3oading", 13, 22); 
 	asm(
