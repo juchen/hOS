@@ -102,7 +102,20 @@ IMPLEMENT_DEF_INT_HANDLER(0x23)
 IMPLEMENT_DEF_INT_HANDLER(0x24)
 IMPLEMENT_DEF_INT_HANDLER(0x25)
 IMPLEMENT_DEF_INT_HANDLER(0x26)
-IMPLEMENT_DEF_INT_HANDLER(0x27)
+
+//IMPLEMENT_DEF_INT_HANDLER(0x27) // Need special handle.
+// IRQ7 is call spurious interrupt for some reason.
+// When timer is enabled, IRQ7 comes from time to time, too,
+// besides IRQ0.
+//
+// Bochs can not mask this IRQ for unknown reason.
+// So, provide a null handler for it.
+void defaultIntHandler0x27(void)
+{
+  asm ( "leave\n\t"
+        "iret\n\t" );
+}
+
 IMPLEMENT_DEF_INT_HANDLER(0x28)
 IMPLEMENT_DEF_INT_HANDLER(0x29)
 IMPLEMENT_DEF_INT_HANDLER(0x2a)

@@ -156,7 +156,7 @@ private:
 	{
 		idt[i].set(addr, TRAP_GATE);
 	}
-public:	
+public:
 	Idt();
 	void setToCPU();
 	void setTimerISR(void (*addr)(void))
