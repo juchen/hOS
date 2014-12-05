@@ -99,7 +99,7 @@ int putchar(int c)
   {
     SysCall_u_putChar('\r');
   }
-	screen->putchar(c);
+	//screen->putchar(c);
 	return 0;
 }
 
