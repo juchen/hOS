@@ -18,7 +18,9 @@ public:
   void initHW();
   void setBaudRate(unsigned int baudRate);
   virtual void transChar(char c);
+  virtual BYTE recvChar();
   virtual bool isTransEmpty();
+  virtual bool isDataReady();
 private:
   unsigned int _baseRegAddr;
   BYTE _lineControl;
@@ -46,6 +48,7 @@ private:
   enum LineStatusBits
   {
     THR_EMPTY = (1 << 5),
+    RDR_FULL  = (1 << 0),
   };
 };
 

@@ -10,6 +10,7 @@
 #include "comport.h"
 #include "syscall.h"
 #include "user_syscall.h"
+#include "gdb_glue.h"
 
 extern "C" {
 void pm_c_entry(void);
@@ -112,13 +113,21 @@ private:
 #define SEGS_BASE 0x00000000
 void pm_c_entry(void)
 {
-  ComPort comPort;
+  ComPort debugPort(0x2f8); // com 2
+  GdbGlue_setDebugComPort(&debugPort);
+
+  ComPort comPort; // default constructor to com 1. Base address 0x3f8.
   //putChar_setComPort(&comPort);
   SysCall_setComPort(&comPort); // set this only after syscall isr is installed.
 	Screen s;
 	s.cls();
-	Idt idt;
+
 	Timer8253 timer8253;
+
+	Idt idt;
+    GdbGlue_setIdt(&idt);
+    set_debug_traps();
+
 	::init_ISR(idt);
 	::init_IntCtrlr();
 	//printf("Booting hOS...\n");
@@ -160,7 +169,11 @@ void pm_c_entry(void)
   unsigned short userStackSeletor;
   {
     SegDesc desc; // The code segment for user mode.
+#if 1 // use gdb stub
+    desc.setStackSeg(SEGS_BASE, 0x0, 0x03);
+#else
     desc.setStackSeg(SEGS_BASE, 0x21, 0x03);
+#endif
     userStackSeletor = gdt.push(desc) | 0x03;
   }
 
@@ -183,6 +196,12 @@ void pm_c_entry(void)
 	    );
 
 	//::enable_Int();
+
+
+  breakpoint();
+
+  //testDebugPort();
+
 
   //CHECK_POINT;
   //asm( "int $0x20\n\t" );

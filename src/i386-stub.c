@@ -97,9 +97,9 @@
  * external low-level support routines
  */
 
-extern void putDebugChar();	/* write a single character      */
+extern void putDebugChar(int c);	/* write a single character      */
 extern int getDebugChar();	/* read and return a single char */
-extern void exceptionHandler();	/* assign an exception handler   */
+extern void exceptionHandler(int, void*);	/* assign an exception handler   */
 
 /************************************************************************/
 /* BUFMAX defines the maximum number of characters in inbound/outbound buffers*/

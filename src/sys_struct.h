@@ -167,5 +167,9 @@ public:
   {
     setIntGate(0x30, addr);
   }
+  void setGdbExceptionGate(unsigned int i, void (*addr)(void))
+  {
+      setIntGate(i, addr);
+  }
 };
 #endif // _SYS_STRUCT_H_

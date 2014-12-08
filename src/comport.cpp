@@ -9,7 +9,8 @@ ComPort::ComPort(unsigned int baseRegAddr)
 }
 
 ComPort::ComPort()
-  : _baseRegAddr(0x3f8)
+  : _baseRegAddr(0x3f8),
+  _lineControl(PARITY_NONE + WORD_LEN_8_BIT + STOP_BIT_1)
 {
   initHW();
 }
@@ -83,8 +84,23 @@ void ComPort::transChar(char c)
   setTHR(c);
 }
 
+BYTE ComPort::recvChar()
+{
+    while(!isDataReady()) {
+        // just wait.
+    }
+    return getRDR();
+}
+
 bool ComPort::isTransEmpty()
 {
   unsigned int st = getLST();
   return (THR_EMPTY == (THR_EMPTY & st));
 }
+
+bool ComPort::isDataReady()
+{
+  unsigned int st = getLST();
+  return (RDR_FULL == (RDR_FULL & st));
+}
+

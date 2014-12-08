@@ -66,6 +66,7 @@ add_executable(secboot.elf
     user_syscall.cpp
     pm_c_entry.cpp
     i386-stub.c
+    gdb_glue.cpp
     )
 
 target_link_libraries(secboot.elf

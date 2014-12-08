@@ -106,8 +106,13 @@ void c_entry(void)
 	SegmentDescriptor_dataSegSetup(&(segDescTable[SEG_DATA_SELECTOR/8]),
 			(void *)SEGS_BASE, 0x2000, 0x3); // should include the stack segment for manipulation.
 	// ^^^ data segment includes all the availble mem (32MB) from 0x18000 to 0x2000000.
+#if 1 // use gdb-stub
+	SegmentDescriptor_stackSegSetup(&(segDescTable[SEG_STACK_SELECTOR/8]),
+			(void *)SEGS_BASE, 0x0, 0x0);
+#else
 	SegmentDescriptor_stackSegSetup(&(segDescTable[SEG_STACK_SELECTOR/8]),
 			(void *)SEGS_BASE, 0x21, 0x0);
+#endif
 	SegmentDescriptor_dataSegSetup(&(segDescTable[SEG_VIDEO_SELECTOR/8]),
 			(void *)0x000B8000, 0x3, 0x3);
 	gdtr.len = sizeof(segDescTable) - 1;
