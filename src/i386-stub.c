@@ -89,8 +89,10 @@
  *
  ****************************************************************************/
 
-#include <stdio.h>
-#include <string.h>
+//#include <stdio.h>
+//#include <string.h>
+extern char* strcpy(char *dest, const char *src);
+#define NULL (0)
 
 /************************************************************************
  *
@@ -724,26 +726,26 @@ computeSignal (int exceptionVector)
 int
 hexToInt (char **ptr, int *intValue)
 {
-  int numChars = 0;
-  int hexValue;
+    int numChars = 0;
+    int hexValue;
 
-  *intValue = 0;
+    *intValue = 0;
 
-  while (**ptr)
+    while (**ptr)
     {
-      hexValue = hex (**ptr);
-      if (hexValue >= 0)
-	{
-	  *intValue = (*intValue << 4) | hexValue;
-	  numChars++;
-	}
-      else
-	break;
+        hexValue = hex (**ptr);
+        if (hexValue >= 0)
+        {
+            *intValue = (*intValue << 4) | hexValue;
+            numChars++;
+        }
+        else
+            break;
 
-      (*ptr)++;
+        (*ptr)++;
     }
 
-  return (numChars);
+    return (numChars);
 }
 
 /*
@@ -761,8 +763,10 @@ _handle_exception (int exceptionVector)
 
   if (remote_debug)
     {
+#if 0
       printf ("vector=%d, sr=0x%x, pc=0x%x\n",
 	      exceptionVector, registers[PS], registers[PC]);
+#endif
     }
 
   /* reply to host that an exception has occurred */

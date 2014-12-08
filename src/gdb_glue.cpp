@@ -6,6 +6,7 @@
 EXTERN void putDebugChar(int c);	/* write a single character      */
 EXTERN int getDebugChar();	/* read and return a single char */
 EXTERN void exceptionHandler(int, void*);	/* assign an exception handler   */
+EXTERN char *strcpy(char *dest, const char *src);
 
 static ComPort *port;
 static Idt     *idt;
@@ -44,3 +45,13 @@ void testDebugPort()
         putDebugChar(c);
     }
 }
+
+char *strcpy(char *dest, const char *src)
+{
+    char *d = dest;
+    for(; *d; ++d, ++src) {
+        *d = *src;
+    }
+    return dest;
+}
+
