@@ -54,7 +54,7 @@ void Screen::putchar(int c)
 			"movb %%al, (%%ebx)\n\t"
 			"movb %3, %%al\n\t"
 			"movb %%al, 1(%%ebx)\n\t"
-			"pop %%ds\n\t"::"g"(SEG_VIDEO_SELECTOR),
+			"pop %%ds\n\t"::"g"(SEG_VIDEO_SELECTOR + 3),
 				"g"((DWORD)curPos),
 			       	"g"(char(c)),
 			       	"g"(char(attr)):"ax","ebx"
@@ -77,7 +77,7 @@ void Screen::cls()
 				//"there:\n\t"
 				//"jmp there\n\t"
 				"movw $0x0720, (%%ebx)\n\t"
-				"pop %%ds\n\t"::"g"(SEG_VIDEO_SELECTOR),"g"((DWORD)curPos):"ax","ebx"
+				"pop %%ds\n\t"::"g"(SEG_VIDEO_SELECTOR + 3),"g"((DWORD)curPos):"ax","ebx"
 		   );
 		curPos+=2;
 	}
@@ -99,7 +99,7 @@ int putchar(int c)
   {
     SysCall_u_putChar('\r');
   }
-	//screen->putchar(c);
+	screen->putchar(c);
 	return 0;
 }
 
