@@ -79,6 +79,8 @@ void c_syscallISR(Context *ctx)
   else if(SYS_CALL_UNLOCK_SCHEDULER == callNo)
   {
     SysCall_unlockScheduler((Scheduler*)callParam);
+    Scheduler *sch = Scheduler::instance();
+    sch->contextSwitch(ctx);
   }
   else
   {

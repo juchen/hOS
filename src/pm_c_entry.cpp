@@ -76,6 +76,7 @@ static inline void init_IntCtrlr(void)
 	//outb(PIC1_DATA, a1);   // restore saved masks.
 	//outb(PIC2_DATA, a2);
 	outb(PIC1_DATA, 0xFE /*a1*/);   // unmask IRQ0 only.
+	//outb(PIC1_DATA, 0xFF /*a1*/);   // mask all for debugging.
 	outb(PIC2_DATA, 0xFF /*a2*/);
 }
 
@@ -99,8 +100,8 @@ public:
   {
     while(true)
     {
-      _cnt += _id;
-      printf("id = %d\n", _id);
+      _cnt += 1;
+      printf("id = %d, cnt = %d\n", _id, _cnt);
     }
   }
 private:
