@@ -2,15 +2,14 @@
 #define _COMPORT_H_
 #include "types.h"
 
-//class IComPort
-//{
-//public:
-//  virtual void transChar(char c) = 0;
-//  virtual bool isTransEmpty() = 0;
-//};
+class IComPort
+{
+public:
+  virtual void transChar(char c) = 0;
+  virtual bool isTransEmpty() = 0;
+};
 
-//class ComPort : public IComPort
-class ComPort
+class ComPort : public IComPort
 {
 public:
   ComPort(unsigned int baseRegAddr);

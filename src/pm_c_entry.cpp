@@ -17,9 +17,9 @@ void pm_c_entry(void);
 
 static inline void init_ISR(Idt &idt)
 {
-	idt.setTimerISR(timerISR);
-  idt.setSysCallISR(syscallISR);
-	idt.setToCPU();
+    idt.setTimerISR(timerISR);
+    idt.setSysCallISR(syscallISR);
+    idt.setToCPU();
 }
 
 /* reinitialize the PIC controllers, giving them specified vector offsets
