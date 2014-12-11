@@ -2,26 +2,33 @@
 #include "stdio.h"
 
 #define TRACE_HEX(x) printf(__FILE__ ":%d:" #x " = 0x%08x\n", __LINE__, (unsigned int)(x))
+#define TRACE_DEC(x) printf(__FILE__ ":%d:" #x " = %d\n", __LINE__, (unsigned int)(x))
 #define CHECK_POINT printf(__FILE__ ":%d: check point\n", __LINE__)
 
 class TestNode
 {
+public:
+    typedef int Key;
+
 private:
     typedef TRBTree<TestNode>::COLOR COLOR;
 
 public:
                 TestNode(int value);
-    COLOR       getColor();
-    TestNode   *getLeft();
-    TestNode   *getRight();
+    COLOR       color();
+    TestNode   *left();
+    TestNode   *right();
     void        setColor(TRBTree<TestNode>::COLOR c);
     void        setLeft(TestNode *l);
     void        setRight(TestNode *r);
-    bool        lessThan(TestNode *lhs, TestNode *rhs);
-    bool        equalTo(TestNode *lhs, TestNode *rhs);
+    Key         key() { return _value; }
 
     void        showTree(int indent = 0);
     const char *colorString(COLOR c);
+    int         value() { return _value; }
+
+    static const COLOR RED   = TRBTree<TestNode>::RED;
+    static const COLOR BLACK = TRBTree<TestNode>::BLACK;
 
 private:
     int       _value;
@@ -29,8 +36,6 @@ private:
     TestNode *_left;
     TestNode *_right;
 
-    static const COLOR RED   = TRBTree<TestNode>::RED;
-    static const COLOR BLACK = TRBTree<TestNode>::BLACK;
 };
 
 
@@ -52,17 +57,17 @@ void TestNode::setRight(TestNode *r)
     _right = r;
 }
 
-TestNode *TestNode::getLeft()
+TestNode *TestNode::left()
 {
     return _left;
 }
 
-TestNode *TestNode::getRight()
+TestNode *TestNode::right()
 {
     return _right;
 }
 
-TestNode::COLOR TestNode::getColor()
+TestNode::COLOR TestNode::color()
 {
     return _color;
 }
@@ -84,16 +89,15 @@ const char *TestNode::colorString(COLOR c)
 
 void TestNode::showTree(int indent)
 {
-    if(0 != getLeft()) {
-        printIndent(indent + 1);
-        getLeft()->showTree();
+    if(0 != left()) {
+        left()->showTree(indent + 1);
     }
 
-    printf("%s %d\n", colorString(getColor()), _value);
+    printIndent(indent);
+    printf("%s %d\n", colorString(color()), _value);
 
-    if(0 != getRight()) {
-        printIndent(indent + 1);
-        getRight()->showTree();
+    if(0 != right()) {
+        right()->showTree(indent + 1);
     }
 }
 
@@ -108,13 +112,60 @@ void testShowTree()
     n1.showTree();
 }
 
+static int blackDepth(TestNode *tree)
+{
+    if(0 == tree) return 0;
+
+    int incDepth = (TestNode::BLACK == tree->color() ? 1 : 0);
+
+    if(0 == tree->left() && 0 == tree->right()) return incDepth;
+
+    int lDepth = blackDepth(tree->left());
+    int rDepth = blackDepth(tree->right());
+
+    if(lDepth != rDepth) return -1;
+
+    return incDepth + lDepth;
+}
+
+static bool propWellSorted(TestNode *tree)
+{
+    if(0 == tree) return true;
+
+    if(0 != tree->left() && !(tree->left()->key() < tree->key())) return false;
+
+    if(0 != tree->right() && !(tree->key() < tree->right()->key())) return false;
+
+    return propWellSorted(tree->left()) && propWellSorted(tree->right());
+}
+
+static bool propNoTwoRed(TestNode *tree)
+{
+    if(0 == tree) return true;
+
+    if(tree->color() == TestNode::RED) {
+        if(0 != tree->left()  && tree->left()->color()  == TestNode::RED) return false;
+        if(0 != tree->right() && tree->right()->color() == TestNode::RED) return false;
+    }
+
+    return propNoTwoRed(tree->left()) && propNoTwoRed(tree->right());
+}
+
 void testInsert()
 {
     CHECK_POINT;
-    TestNode n1(1);
     TRBTree<TestNode> tree;
-    tree.insert(&n1);
-    n1.showTree();
+
+    for(int i = 100; i > 0; --i) {
+        tree.insert(new TestNode(i));
+    }
+
+    tree.root()->showTree();
+
+    TRACE_DEC(blackDepth(tree.root()));
+    ASSERT(blackDepth(tree.root()) >= 3);
+    ASSERT(propWellSorted(tree.root()));
+    ASSERT(propNoTwoRed(tree.root()));
 }
 
 int main(int argc, char **argv)

@@ -142,11 +142,11 @@ void pm_c_entry(void)
         userCodeSelector = gdt.push(desc) | 0x03;
     }
 
-    unsigned short userStackSeletor;
+    unsigned short userStackSelector;
     {
         SegDesc desc; // The code segment for user mode.
         desc.setStackSeg(SEGS_BASE, 0x21, 0x03);
-        userStackSeletor = gdt.push(desc) | 0x03;
+        userStackSelector = gdt.push(desc) | 0x03;
     }
 
     unsigned short sysCallGateSelector;
@@ -205,7 +205,7 @@ void pm_c_entry(void)
             "pushl $0\n\t" // This position is for ebp right after a function call.
             "mov %%esp, %0\n\t" // get the pointer to ebp context. (In general function, mov %esp, %ebp right on entry)
             :"=g"(ctxEbp)
-            :"g"((unsigned int)userStackSeletor),
+            :"g"((unsigned int)userStackSelector),
             "g"((unsigned int)userCodeSelector)
        );
     asm( // prepare stack space for function call of 'switchTo'.
