@@ -151,12 +151,12 @@ static bool propNoTwoRed(TestNode *tree)
     return propNoTwoRed(tree->left()) && propNoTwoRed(tree->right());
 }
 
-void testInsert()
+void testInsertRemove()
 {
     CHECK_POINT;
     TRBTree<TestNode> tree;
 
-    for(int i = 100; i > 0; --i) {
+    for(int i = 10000; i > 0; --i) {
         tree.insert(new TestNode(i));
     }
 
@@ -166,12 +166,46 @@ void testInsert()
     ASSERT(blackDepth(tree.root()) >= 3);
     ASSERT(propWellSorted(tree.root()));
     ASSERT(propNoTwoRed(tree.root()));
+
+    for(int i = 5000; i < 10000; ++i) {
+        TestNode *n = tree.remove(i);
+        ASSERT(n->value() == i);
+    }
+
+
+    /*
+    tree.remove(50);
+    TRACE_DEC(blackDepth(tree.root()));
+    ASSERT(blackDepth(tree.root()) >= 0);
+    tree.root()->showTree();
+
+    tree.remove(51);
+    TRACE_DEC(blackDepth(tree.root()));
+    ASSERT(blackDepth(tree.root()) >= 0);
+    tree.root()->showTree();
+
+    tree.remove(52);
+    TRACE_DEC(blackDepth(tree.root()));
+    ASSERT(blackDepth(tree.root()) >= 0);
+    tree.root()->showTree();
+
+    tree.remove(53);
+    TRACE_DEC(blackDepth(tree.root()));
+    ASSERT(blackDepth(tree.root()) >= 0);
+    tree.root()->showTree();
+    */
+
+    TRACE_DEC(blackDepth(tree.root()));
+    ASSERT(blackDepth(tree.root()) >= 0);
+    ASSERT(propWellSorted(tree.root()));
+    ASSERT(propNoTwoRed(tree.root()));
+
 }
 
 int main(int argc, char **argv)
 {
     testShowTree();
-    testInsert();
+    testInsertRemove();
     return 0;
 }
 
