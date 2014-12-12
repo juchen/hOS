@@ -41,6 +41,9 @@ public:
     T    *remove(const Key &k,
                  bool (*eq)(const Key &lhs, const Key &rhs) = (defaultEq),
                  bool (*less)(const Key &lhs, const Key &rhs) = (defaultLess));
+    T    *removeLeastGreater(const Key &k,
+                             bool (*eq)(const Key &lhs, const Key &rsh) = (defaultEq),
+                             bool (*less)(const Key &lhs, const Key &rsh) = (defaultLess));
     T    *root() { return _root; }
 
     TRBTree();
@@ -61,6 +64,11 @@ private:
                          const Key &k,
                          bool (*eq)(const Key &lhs, const Key &rhs),
                          bool (*less)(const Key &lhs, const Key &rhs));
+    static bool  _removeLeastGreater(T **pTree, // In and out. Carry the balance-adjusted tree after return.
+                                     T **pItem, // Carry the removed item.
+                                     const Key &k,
+                                     bool (*eq)(const Key &lhs, const Key &rhs),
+                                     bool (*less)(const Key &lhs, const Key &rhs));
     static bool  _rmRightMost(T **pTree, T **pItem);
     static bool  _rmAdjLeft(T **pTree);
     static bool  _rmAdjRight(T **pTree);
@@ -251,6 +259,105 @@ T *TRBTree<T>::remove(const typename T::Key &k,
 {
     T *item = 0;
     (void)_remove(&_root, &item, k, eq, less);
+
+    if(0 != item) {
+        item->setLeft(0);
+        item->setRight(0);
+    }
+
+    if(0 != _root) _root->setColor(BLACK);
+
+    return item;
+}
+
+template<class T>
+bool TRBTree<T>::_removeLeastGreater(T **pTree, // [In/out]. Carry the balance-adjusted tree after return.
+                                     T **pItem, // [Out   ]. Carry the removed item.
+                                     const Key &k,
+                                     bool (*eq)(const Key &lhs, const Key &rhs),
+                                     bool (*less)(const Key &lhs, const Key &rhs))
+{
+    T *&tree = (*pTree);
+    T *&item = (*pItem);
+    bool toAdj = false;
+
+    if(less(k, tree->key())) {
+        T *l = tree->left();
+        if(0 == l) {
+            // If there is a right child, it must be a red leaf.
+            ASSERT(0 == tree->right() || (RED == tree->right()->color() && 0 == tree->right()->left() && 0 == tree->right()->right()));
+            item = tree;
+            if(0 != tree->right()) tree->right()->setColor(tree->color());
+            tree = tree->right();
+            item->setLeft(0);
+            item->setRight(0);
+
+            if(BLACK == item->color() && 0 == tree) toAdj = true; // Remove block node without red to replace.
+        } else {
+            item = 0;
+
+            if(!eq(k, tree->key())) {
+                toAdj = _removeLeastGreater(&l, &item, k, eq, less);
+                tree->setLeft(l);
+                if(toAdj) toAdj = _rmAdjLeft(&tree);
+            }
+
+            if(0 == item) {
+                T *rMost;
+                toAdj = _rmRightMost(&l, &rMost);
+                rMost->setRight(tree->right());
+                rMost->setLeft(l);
+                rMost->setColor(tree->color());
+                item = tree;
+                tree = rMost;
+                item->setLeft(0);
+                item->setRight(0);
+                if(toAdj) toAdj = _rmAdjLeft(&tree);
+            }
+        }
+    } else if(eq(k, tree->key())) {
+        T *l = tree->left();
+        if(0 == l) {
+            // If there is a right child, it must be a red leaf.
+            ASSERT(0 == tree->right() || (RED == tree->right()->color() && 0 == tree->right()->left() && 0 == tree->right()->right()));
+            item = tree;
+            if(0 != tree->right()) tree->right()->setColor(tree->color());
+            tree = tree->right();
+            item->setLeft(0);
+            item->setRight(0);
+
+            if(BLACK == item->color() && 0 == tree) toAdj = true; // Remove block node without red to replace.
+        } else {
+            T *rMost;
+            toAdj = _rmRightMost(&l, &rMost);
+            rMost->setRight(tree->right());
+            rMost->setLeft(l);
+            rMost->setColor(tree->color());
+            item = tree;
+            tree = rMost;
+            item->setLeft(0);
+            item->setRight(0);
+            if(toAdj) toAdj = _rmAdjLeft(&tree);
+        }
+    } else {
+        T *r = tree->right();
+        if(0 == r) {
+        } else {
+            toAdj = _removeLeastGreater(&r, &item, k, eq, less);
+            tree->setRight(r);
+            if(toAdj) toAdj = _rmAdjRight(&tree);
+        }
+    }
+    return toAdj;
+}
+
+template<class T>
+T *TRBTree<T>::removeLeastGreater(const typename T::Key &k,
+                                  bool (*eq)(const Key &lhs, const Key &rhs),
+                                  bool (*less)(const Key &lhs, const Key &rhs))
+{
+    T *item = 0;
+    (void)_removeLeastGreater(&_root, &item, k, eq, less);
 
     if(0 != item) {
         item->setLeft(0);
